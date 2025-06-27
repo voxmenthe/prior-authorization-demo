@@ -56,8 +56,24 @@ class RefinementAgent:
         return self._merge_correction(tree, correction_dict)
 
     def _extract_relevant_section(self, tree: dict, node_ids: list) -> str:
-        # Placeholder for extracting relevant tree section
-        return json.dumps(tree) # Simplified for now
+        """Extract relevant tree section without double JSON encoding."""
+        if not node_ids:
+            # Return a simplified representation instead of full JSON
+            if isinstance(tree, dict) and "nodes" in tree:
+                node_count = len(tree["nodes"])
+                return f"Tree with {node_count} nodes"
+            return "Full tree structure"
+        
+        # Extract specific nodes if node_ids provided
+        relevant_nodes = {}
+        if isinstance(tree, dict) and "nodes" in tree:
+            for node_id in node_ids:
+                if node_id in tree["nodes"]:
+                    relevant_nodes[node_id] = tree["nodes"][node_id]
+        
+        if relevant_nodes:
+            return f"Relevant nodes: {list(relevant_nodes.keys())}"
+        return "No relevant nodes found"
 
     def _merge_correction(self, tree: dict, correction: dict) -> dict:
         # Placeholder for merging correction
