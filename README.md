@@ -14,7 +14,7 @@ The Prior Authorization Decision Tree Demo is an AI system that automatically co
 
 ### 🎯 **What It Does**
 
-- **📄 Document Processing**: Ingests pharmaceutical criteria documents (PDFs, text files)
+- **📄 Document Processing**: Ingests pharmaceutical criteria documents (PDFs, text files) - for the moment, only text files are supported
 - **🤖 AI Analysis**: Uses Google's Gemini AI to parse complex medical criteria
 - **🌳 Tree Generation**: Creates structured decision trees with logical flow
 - **✓ Validation**: Ensures logical consistency and completeness
@@ -141,25 +141,8 @@ Document: ozempic_criteria.txt
 
 ### ⚙️ **Advanced Options**
 
-```bash
-# Custom output directory
-python demo.py run --output-dir /path/to/custom/outputs
-
-# Disable colors for CI/CD environments
-python demo.py run --no-color
-
-# Hide decision tree visualization
-python demo.py run --no-trees
-
-# Disable interactive step progression
-python demo.py run --no-interactive
-
-# Enable verbose logging and error details
-python demo.py run --verbose
-
-# Process with mock data (faster, for testing)
-python demo.py run --mock
-```
+The demos all have a number of options.
+TODO: enumerate these here. For now, see the source code.
 
 ### 📁 **Output Structure**
 
@@ -349,8 +332,6 @@ GOOGLE_API_KEY=your_google_api_key_here
 # Optional: Environment selection
 ENVIRONMENT=development  # test, development, production
 
-# Optional: Demo customization
-RUN_SLOW_TESTS=1         # Enable slow integration tests
 ```
 
 ### ⚙️ **Configuration Options**
@@ -382,64 +363,5 @@ The project includes three real-world pharmaceutical criteria documents:
 - **Complexity**: Low (straightforward criteria, basic requirements)
 - **File**: `examples/cardioguard_criteria.txt` (1,035 bytes)
 
+- **Notes:** These examples are completely made up but are meant to be indicative of real-world criteria documents.
 These documents represent varying complexity levels and provide comprehensive testing scenarios for the AI pipeline.
-
-## 💡 Use Cases
-
-### 🏥 **Healthcare Providers**
-- **Streamline Prior Authorization**: Convert complex criteria into clear decision trees
-- **Reduce Processing Time**: Automate initial eligibility screening
-- **Improve Accuracy**: Eliminate manual interpretation errors
-- **Training Tool**: Help staff understand authorization requirements
-
-### 💊 **Pharmaceutical Companies**
-- **Criteria Optimization**: Analyze and improve authorization criteria clarity
-- **Market Access**: Streamline approval processes for new medications
-- **Compliance**: Ensure criteria meet regulatory requirements
-- **Documentation**: Create clear, structured criteria documentation
-
-### 💰 **Healthcare Payers**
-- **Policy Development**: Create consistent authorization policies
-- **Cost Management**: Optimize coverage decisions with clear criteria
-- **Audit Trail**: Maintain detailed records of authorization decisions
-- **Quality Assurance**: Ensure consistent application of criteria
-
-### 🎓 **Research & Education**
-- **Healthcare AI**: Demonstrate AI applications in clinical workflows
-- **Process Optimization**: Study healthcare automation opportunities
-- **Training Data**: Generate structured datasets for AI development
-- **Benchmarking**: Compare AI model performance on medical tasks
-
-## ⚡ Performance
-
-### 🚀 **Processing Speed**
-- **Single Document**: 30-60 seconds (depending on complexity)
-- **Batch Processing**: 2-3 minutes for all 3 example documents
-- **API Efficiency**: Optimized token usage with structured outputs
-- **Memory Usage**: <500MB for typical workloads
-
-### 📊 **Accuracy Metrics**
-- **Schema Compliance**: 100% (Pydantic validation)
-- **Test Pass Rate**: 51/51 (100%)
-- **Error Recovery**: Graceful degradation with detailed reporting
-- **API Reliability**: Multi-model fallback system
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our contribution guidelines:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Add tests** for new functionality
-4. **Ensure** all tests pass (`pytest tests/`)
-5. **Commit** changes (`git commit -m 'Add amazing feature'`)
-6. **Push** to branch (`git push origin feature/amazing-feature`)
-7. **Open** a Pull Request
-
-### 🐛 **Reporting Issues**
-
-Found a bug? Please open an issue with:
-- **Description**: Clear description of the problem
-- **Reproduction**: Steps to reproduce the issue
-- **Environment**: Python version, OS, API keys status
-- **Logs**: Relevant error messages or demo output
