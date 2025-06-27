@@ -37,6 +37,7 @@ from src.demo.enhanced_visualizer import (
     AgentInsightRenderer,
     create_demo_processing_steps
 )
+from src.utils.tree_traversal import SafeTreeTraverser, TraversalConfig, validate_tree_structure
 
 
 # Initialize Rich console and Typer app
@@ -181,22 +182,82 @@ class EnhancedVisualPresenter:
             tree_text.append("🚨 Invalid nodes format - expected dictionary", style="red")
             return tree_text
         
-        # Start with root node
-        root_nodes = [node for node in nodes.values() if not any(
-            node["id"] in str(other.get("connections", {})) for other in nodes.values()
-        )]
+        # Validate tree structure before rendering
+        is_valid, issues = validate_tree_structure(nodes)
+        if not is_valid:
+            tree_text.append("⚠️  Tree structure issues detected:\n", style="yellow")
+            for issue in issues[:3]:  # Show first 3 issues
+                tree_text.append(f"  • {issue}\n", style="dim yellow")
+            if len(issues) > 3:
+                tree_text.append(f"  • ... and {len(issues) - 3} more issues\n", style="dim yellow")
         
-        if not root_nodes and nodes:
-            root_nodes = [list(nodes.values())[0]]
+        # Create safe traverser
+        config = TraversalConfig(
+            max_depth=30,  # Reasonable depth for decision trees
+            detect_cycles=True,
+            raise_on_cycle=False,
+            log_warnings=True
+        )
+        traverser = SafeTreeTraverser(config)
         
+        # Find root nodes
+        from src.utils.tree_traversal import find_root_nodes
+        root_nodes = find_root_nodes(nodes)
+        
+        # Use safe traversal for each root
         for i, root in enumerate(root_nodes):
-            self._add_node_to_tree(tree_text, root, nodes, "", True, highlight_node)
+            try:
+                # Define processing function
+                def process_node(node, context, depth):
+                    prefix = context.get('prefix', '')
+                    is_last = context.get('is_last', True)
+                    self._render_node_safe(tree_text, node, prefix, is_last, highlight_node)
+                    return None
+                
+                # Define children getter
+                def get_children(node, all_nodes):
+                    children = []
+                    connections = node.get("connections", {})
+                    
+                    if isinstance(connections, dict):
+                        child_ids = list(connections.values())
+                    else:
+                        child_ids = [conn.get("target_node_id") for conn in connections if conn.get("target_node_id")]
+                    
+                    valid_children = []
+                    for child_id in child_ids:
+                        if child_id in all_nodes:
+                            valid_children.append(all_nodes[child_id])
+                    
+                    # Create context for each child
+                    result = []
+                    for idx, child in enumerate(valid_children):
+                        is_last_child = idx == len(valid_children) - 1
+                        child_prefix = prefix + ("    " if is_last else "│   ")
+                        child_context = {
+                            'prefix': child_prefix,
+                            'is_last': is_last_child
+                        }
+                        result.append((child, child_context))
+                    
+                    return result
+                
+                # Initial context
+                initial_context = {'prefix': '', 'is_last': i == len(root_nodes) - 1}
+                
+                # Perform safe traversal
+                traverser.traverse_tree(root, nodes, process_node, get_children, initial_context)
+                
+                if traverser.has_cycle():
+                    tree_text.append("\n⚠️  Circular references were detected and safely handled\n", style="dim yellow")
+                    
+            except Exception as e:
+                tree_text.append(f"\n❌ Error rendering tree: {str(e)}\n", style="red")
         
         return tree_text
     
-    def _add_node_to_tree(self, tree_text: Text, node: Dict[str, Any], all_nodes: Dict[str, Any], 
-                         prefix: str, is_last: bool, highlight_node: str = None):
-        """Recursively add nodes to Unicode tree."""
+    def _render_node_safe(self, tree_text: Text, node: Dict[str, Any], prefix: str, is_last: bool, highlight_node: str = None):
+        """Safely render a single node without recursion."""
         node_id = node.get("id", "unknown")
         node_type = node.get("type", "unknown")
         
@@ -224,20 +285,38 @@ class EnhancedVisualPresenter:
         
         tree_text.append(f"{prefix}{connector}{icon} ", style="dim white")
         tree_text.append(f"{text}\n", style=style)
+    
+    def _add_node_to_tree(self, tree_text: Text, node: Dict[str, Any], all_nodes: Dict[str, Any], 
+                         prefix: str, is_last: bool, highlight_node: str = None):
+        """Legacy method kept for compatibility - redirects to safe traversal."""
+        # This method is kept for backward compatibility but now uses safe traversal
+        config = TraversalConfig(max_depth=30, detect_cycles=True, raise_on_cycle=False)
+        traverser = SafeTreeTraverser(config)
         
-        # Add child nodes
-        connections = node.get("connections", {})
-        if isinstance(connections, dict):
-            child_ids = list(connections.values())
-        else:
-            child_ids = [conn.get("target_node_id") for conn in connections if conn.get("target_node_id")]
+        def process_node(n, ctx, depth):
+            p = ctx.get('prefix', prefix)
+            last = ctx.get('is_last', is_last)
+            self._render_node_safe(tree_text, n, p, last, highlight_node)
         
-        valid_children = [all_nodes[child_id] for child_id in child_ids if child_id in all_nodes]
+        def get_children(n, all_n):
+            children = []
+            connections = n.get("connections", {})
+            if isinstance(connections, dict):
+                child_ids = list(connections.values())
+            else:
+                child_ids = [conn.get("target_node_id") for conn in connections if conn.get("target_node_id")]
+            
+            valid_children = [all_n[child_id] for child_id in child_ids if child_id in all_n]
+            result = []
+            for i, child in enumerate(valid_children):
+                is_last_child = i == len(valid_children) - 1
+                child_prefix = prefix + ("    " if is_last else "│   ")
+                child_context = {'prefix': child_prefix, 'is_last': is_last_child}
+                result.append((child, child_context))
+            return result
         
-        for i, child in enumerate(valid_children):
-            is_last_child = i == len(valid_children) - 1
-            child_prefix = prefix + ("    " if is_last else "│   ")
-            self._add_node_to_tree(tree_text, child, all_nodes, child_prefix, is_last_child, highlight_node)
+        initial_context = {'prefix': prefix, 'is_last': is_last}
+        traverser.traverse_tree(node, all_nodes, process_node, get_children, initial_context)
     
     def show_step_insight(self, step_name: str, key_finding: str, impact: str, 
                          data_snippet: str = None) -> Panel:
@@ -516,15 +595,39 @@ def run(
             if verbose:
                 presenter.show_session_metrics(completed_session)
         
-        # Enhanced completion message
+        # Enhanced completion message with specific filenames
+        output_path = Path(output_dir)
+        
+        # Get actual output files
+        decision_tree_files = list((output_path / "decision_trees").glob("*.json")) if (output_path / "decision_trees").exists() else []
+        report_files = list((output_path / "reports").glob("*.json")) if (output_path / "reports").exists() else []
+        log_files = list((output_path / "logs").glob("*.log")) if (output_path / "logs").exists() else []
+        
         completion_text = Text.assemble(
             ("🎉 Enhanced Demo Completed Successfully!", "bold bright_green"),
             (f"\n\n✨ Features used:", "bright_cyan"),
             (f"\n• Real-time agent visualization: {'✅' if real_time else '❌'}", "white"),
             (f"\n• Animated tree building: {'✅' if animated else '❌'}", "white"),
-            (f"\n• Enhanced UI elements: ✅", "white"),
             (f"\n\n📁 Output saved to: {output_dir}/", "bright_blue"),
         )
+        
+        # Add decision tree files
+        if decision_tree_files:
+            completion_text.append("\n\n🌳 Decision trees:", "bright_magenta")
+            for file in decision_tree_files:
+                completion_text.append(f"\n  • {file.name}", "dim white")
+        
+        # Add report files
+        if report_files:
+            completion_text.append("\n\n📊 Session reports:", "bright_magenta")
+            for file in report_files:
+                completion_text.append(f"\n  • {file.name}", "dim white")
+        
+        # Add log files
+        if log_files:
+            completion_text.append("\n\n📝 Detailed logs:", "bright_magenta")
+            for file in log_files:
+                completion_text.append(f"\n  • {file.name}", "dim white")
         
         completion_panel = Panel(
             completion_text,

@@ -6,6 +6,7 @@ and interactive elements for the demo script.
 """
 
 import json
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
@@ -337,14 +338,42 @@ class VisualPresenter:
         self.console.print(warning_panel)
     
     def show_completion_message(self, output_dir: str) -> None:
-        """Display demo completion message."""
+        """Display demo completion message with specific filenames."""
+        output_path = Path(output_dir)
+        
+        # Get actual output files
+        decision_tree_files = list((output_path / "decision_trees").glob("*.json")) if (output_path / "decision_trees").exists() else []
+        report_files = list((output_path / "reports").glob("*.json")) if (output_path / "reports").exists() else []
+        log_files = list((output_path / "logs").glob("*.log")) if (output_path / "logs").exists() else []
+        
         completion_text = Text.assemble(
             ("🎉 Demo Completed Successfully!", f"bold {self.colors.SUCCESS}"),
-            (f"\n\nOutput saved to: {output_dir}/", self.colors.INFO),
-            ("\n• Decision trees: decision_trees/", self.colors.MUTED),
-            ("\n• Session reports: reports/", self.colors.MUTED),
-            ("\n• Detailed logs: logs/", self.colors.MUTED),
+            (f"\n\n📁 Output saved to: {output_dir}/", self.colors.INFO),
         )
+        
+        # Add decision tree files
+        if decision_tree_files:
+            completion_text.append("\n\n🌳 Decision trees:", self.colors.ACCENT)
+            for file in decision_tree_files:
+                completion_text.append(f"\n  • {file.name}", self.colors.MUTED)
+        
+        # Add report files
+        if report_files:
+            completion_text.append("\n\n📊 Session reports:", self.colors.ACCENT)
+            for file in report_files:
+                completion_text.append(f"\n  • {file.name}", self.colors.MUTED)
+        
+        # Add log files
+        if log_files:
+            completion_text.append("\n\n📝 Detailed logs:", self.colors.ACCENT)
+            for file in log_files:
+                completion_text.append(f"\n  • {file.name}", self.colors.MUTED)
+        
+        # If no specific files found, show generic folder structure
+        if not decision_tree_files and not report_files and not log_files:
+            completion_text.append("\n• Decision trees: decision_trees/", self.colors.MUTED)
+            completion_text.append("\n• Session reports: reports/", self.colors.MUTED)
+            completion_text.append("\n• Detailed logs: logs/", self.colors.MUTED)
         
         completion_panel = Panel(
             completion_text,

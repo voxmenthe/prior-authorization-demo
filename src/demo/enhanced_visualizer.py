@@ -18,6 +18,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 from rich.layout import Layout
+
+from src.utils.tree_traversal import SafeTreeTraverser, TraversalConfig, validate_tree_structure, find_root_nodes
 from rich.live import Live
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from rich.columns import Columns
@@ -212,23 +214,121 @@ class UnicodeTreeRenderer:
             error_text.append(f"Received: {type(nodes).__name__}", style="dim red")
             return error_text
         
-        # Find root nodes (nodes with no incoming connections)
-        root_nodes = self._find_root_nodes(nodes)
-        
-        tree_text = Text()
+        # Validate tree structure
+        is_valid, issues = validate_tree_structure(nodes)
+        if not is_valid and len(issues) > 0:
+            tree_text = Text()
+            tree_text.append("⚠️  Tree validation warnings:\n", style="dim yellow")
+            for issue in issues[:2]:
+                tree_text.append(f"  • {issue}\n", style="dim yellow")
+            tree_text.append("\n")
+        else:
+            tree_text = Text()
         
         # Add tree header
         tree_text.append("🌳 Decision Tree Structure\n\n", style="bold bright_green")
         
-        # Render each root node and its subtree
+        # Create safe traverser
+        config = TraversalConfig(
+            max_depth=25,
+            detect_cycles=True,
+            raise_on_cycle=False,
+            log_warnings=True
+        )
+        traverser = SafeTreeTraverser(config)
+        
+        # Find root nodes using safe utility
+        root_nodes = find_root_nodes(nodes)
+        
+        # Render each root node using safe traversal
         for i, root in enumerate(root_nodes):
             if i > 0:
                 tree_text.append("\n")
-            self._render_node_recursive(
-                tree_text, root, nodes, "", True, highlight_node, show_connections
-            )
+            
+            try:
+                # Create a custom processor that handles conditions
+                visited_nodes = set()
+                
+                def safe_render(node, prefix, is_last, depth=0):
+                    """Safe render with cycle detection."""
+                    node_id = node.get('id', str(id(node)))
+                    
+                    # Check for cycles
+                    if node_id in visited_nodes:
+                        tree_text.append(f"{prefix}├── ⚠️  [Circular reference to {node_id}]\n", style="dim yellow")
+                        return
+                    
+                    if depth > 25:
+                        tree_text.append(f"{prefix}├── ⚠️  [Max depth reached]\n", style="dim yellow")
+                        return
+                    
+                    visited_nodes.add(node_id)
+                    
+                    # Render the node
+                    self._render_single_node(tree_text, node, prefix, is_last, highlight_node, show_connections)
+                    
+                    # Get and render children
+                    children_list = self._get_child_nodes(node, nodes)
+                    for idx, (condition, child_node) in enumerate(children_list):
+                        is_last_child = idx == len(children_list) - 1
+                        child_prefix = prefix + ("    " if is_last else "│   ")
+                        
+                        # Add condition label if needed
+                        if condition and condition not in ['true', 'false']:
+                            tree_text.append(f"{child_prefix}├─ ", style="dim white")
+                            tree_text.append(f"[{condition}]\n", style="dim bright_yellow")
+                            child_prefix += "│   "
+                        
+                        # Recursively render child
+                        safe_render(child_node, child_prefix, is_last_child, depth + 1)
+                    
+                    visited_nodes.remove(node_id)  # Allow revisiting in different branches
+                
+                # Start rendering from root
+                safe_render(root, "", i == len(root_nodes) - 1)
+                    
+            except Exception as e:
+                tree_text.append(f"\n❌ Error rendering tree: {str(e)}\n", style="red")
         
         return tree_text
+    
+    def _render_single_node(self, tree_text: Text, node: Dict[str, Any],
+                           prefix: str, is_last: bool, highlight_node: str = None,
+                           show_connections: bool = True):
+        """Render a single node without recursion."""
+        
+        node_id = node.get('id', 'unknown')
+        node_type = node.get('type', 'unknown').lower()
+        
+        # Choose appropriate style
+        if highlight_node and node_id == highlight_node:
+            style_info = self.node_styles.PROCESSING
+        elif node_type == 'question':
+            style_info = self.node_styles.QUESTION
+        elif node_type == 'outcome':
+            style_info = self.node_styles.OUTCOME
+        else:
+            style_info = self.node_styles.DEFAULT
+        
+        # Tree connector
+        connector = "└── " if is_last else "├── "
+        
+        # Node content
+        if node_type == 'question':
+            content = node.get('question', 'Unknown Question')
+        elif node_type == 'outcome':
+            content = node.get('decision', 'Unknown Outcome') 
+        else:
+            content = node.get('label', node_id)
+        
+        # Truncate long content
+        if len(content) > 60:
+            content = content[:57] + "..."
+        
+        # Add node to tree
+        tree_text.append(f"{prefix}{connector}", style="dim white")
+        tree_text.append(f"{style_info['icon']} ", style=style_info['style'])
+        tree_text.append(f"{content}\n", style=style_info['style'])
     
     def _find_root_nodes(self, nodes: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Find root nodes (those not referenced by other nodes)."""
