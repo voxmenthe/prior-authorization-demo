@@ -1,0 +1,19 @@
+{
+  "demo_session": {
+    "started_at": "2025-06-26T18:39:12.142728",
+    "completed_at": "2025-06-26T18:39:48.801057",
+    "total_duration_seconds": 36.658329,
+    "mode": "interactive"
+  },
+  "summary": {
+    "total_documents": 0,
+    "successful_documents": 0,
+    "failed_documents": 0,
+    "success_rate": 0.0,
+    "total_processing_time": 0.0,
+    "average_processing_time": 0.0,
+    "total_api_calls": 0,
+    "total_tokens": 0
+  },
+  "document_results": []
+}

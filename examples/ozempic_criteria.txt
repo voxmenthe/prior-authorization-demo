@@ -1,0 +1,46 @@
+CLINICAL POLICY: Ozempic (semaglutide)
+EFFECTIVE DATE: 01/15/2025
+LAST REVIEW DATE: 12/20/2024
+
+I. INDICATIONS
+Ozempic is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus.
+
+II. CRITERIA FOR INITIAL APPROVAL
+Ozempic may be approved when ALL of the following criteria are met:
+1. Diagnosis: Member has a confirmed diagnosis of Type 2 Diabetes Mellitus (T2DM) as evidenced by:
+   a. Hemoglobin A1c (HbA1c) ≥ 6.5% on two separate occasions, OR
+   b. Fasting plasma glucose ≥ 126 mg/dL on two separate occasions, OR
+   c. Random plasma glucose ≥ 200 mg/dL with classic symptoms of hyperglycemia
+
+2. Age: Member is ≥ 18 years of age
+
+3. Prior Therapy: Member has tried and failed OR has a contraindication to metformin, defined as:
+   a. Failure: Inadequate glycemic control (HbA1c > 7.0%) despite ≥ 3 months of maximally tolerated metformin therapy (≥ 1500 mg/day or documented intolerance to higher doses)
+   b. Contraindication: One of the following:
+      i. eGFR < 30 mL/min/1.73m²
+      ii. History of lactic acidosis
+      iii. Documented severe gastrointestinal intolerance to metformin
+
+4. Clinical Appropriateness: Member does NOT have any of the following:
+   a. Personal or family history of medullary thyroid carcinoma (MTC)
+   b. Multiple Endocrine Neoplasia syndrome type 2 (MEN 2)
+   c. History of pancreatitis
+   d. Severe gastroparesis
+   e. Pregnancy or planning to become pregnant
+
+5. Baseline Documentation: The following must be documented:
+   a. Current HbA1c level (within last 90 days)
+   b. Current weight/BMI
+   c. Liver function tests (ALT, AST)
+   d. Renal function (eGFR)
+
+III. DURATION OF APPROVAL
+Initial approval: 6 months
+Renewal approval: 12 months
+
+IV. RENEWAL CRITERIA
+For renewal, the following must be demonstrated:
+1. Continued diagnosis of T2DM
+2. Reduction in HbA1c of ≥ 0.5% from baseline OR maintenance of HbA1c < 7.0%
+3. No new contraindications have developed
+4. Member is tolerating therapy without severe adverse effects

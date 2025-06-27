@@ -1,0 +1,26 @@
+CLINICAL POLICY: Jardiance (empagliflozin)
+EFFECTIVE DATE: 03/01/2025
+LAST REVIEW DATE: 02/15/2025
+
+I. INDICATIONS
+Jardiance is indicated to reduce the risk of cardiovascular death in adults with type 2 diabetes mellitus and established cardiovascular disease.
+
+II. CRITERIA FOR INITIAL APPROVAL
+Jardiance may be approved when ALL of the following are met:
+1. Diagnosis: Member has a confirmed diagnosis of Type 2 Diabetes Mellitus.
+2. Cardiovascular Disease: Member has established cardiovascular disease, as evidenced by one of the following:
+   a. History of myocardial infarction
+   b. History of coronary artery bypass grafting (CABG)
+   c. History of percutaneous coronary intervention (PCI)
+   d. History of stroke
+3. Age: Member is ≥ 18 years of age.
+4. eGFR: Member's estimated glomerular filtration rate (eGFR) is ≥ 45 mL/min/1.73m².
+
+III. DURATION OF APPROVAL
+Initial approval: 12 months
+Renewal approval: 12 months
+
+IV. RENEWAL CRITERIA
+For renewal, the following must be demonstrated:
+1. Continued use of Jardiance is producing a positive clinical response.
+2. eGFR remains ≥ 45 mL/min/1.73m².

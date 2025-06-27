@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "diagnosis",
+      "type": "required",
+      "condition": "Member has a confirmed diagnosis of Type 2 Diabetes Mellitus (T2DM)",
+      "parameters": {
+        "threshold_value": "6.5",
+        "threshold_operator": ">=",
+        "unit": "%"
+      },
+      "sub_conditions": [
+        {
+          "id": "diagnosis_hba1c",
+          "condition": "Hemoglobin A1c (HbA1c) ≥ 6.5% on two separate occasions",
+          "operator": "OR"
+        },
+        {
+          "id": "diagnosis_fasting_glucose",
+          "condition": "Fasting plasma glucose ≥ 126 mg/dL on two separate occasions",
+          "operator": "OR"
+        },
+        {
+          "id": "diagnosis_random_glucose",
+          "condition": "Random plasma glucose ≥ 200 mg/dL with classic symptoms of hyperglycemia",
+          "operator": "OR"
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "age",
+      "type": "required",
+      "condition": "Member is ≥ 18 years of age",
+      "parameters": {
+        "threshold_value": "18",
+        "threshold_operator": ">=",
+        "unit": "years"
+      },
+      "sub_conditions": [],
+      "exceptions": []
+    },
+    {
+      "id": "prior_therapy",
+      "type": "required",
+      "condition": "Member has tried and failed OR has a contraindication to metformin",
+      "parameters": {
+        "threshold_value": "1500",
+        "threshold_operator": ">=",
+        "unit": "mg/day"
+      },
+      "sub_conditions": [
+        {
+          "id": "metformin_failure",
+          "condition": "Inadequate glycemic control (HbA1c > 7.0%) despite ≥ 3 months of maximally tolerated metformin therapy",
+          "operator": "OR"
+        },
+        {
+          "id": "metformin_contraindication",
+          "condition": "Contraindication to metformin",
+          "operator": "OR",
+          "sub_conditions": [
+            {
+              "id": "egfr_low",
+              "condition": "eGFR < 30 mL/min/1.73m²"
+            },
+            {
+              "id": "lactic_acidosis_history",
+              "condition": "History of lactic acidosis"
+            },
+            {
+              "id": "gi_intolerance",
+              "condition": "Documented severe gastrointestinal intolerance to metformin"
+            }
+          ]
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "clinical_appropriateness",
+      "type": "required",
+      "condition": "Member does NOT have any contraindications",
+      "parameters": {},
+      "sub_conditions": [],
+      "exceptions": [
+        {
+          "id": "mtc_history",
+          "condition": "Personal or family history of medullary thyroid carcinoma (MTC)"
+        },
+        {
+          "id": "men2_syndrome",
+          "condition": "Multiple Endocrine Neoplasia syndrome type 2 (MEN 2)"
+        },
+        {
+          "id": "pancreatitis_history",
+          "condition": "History of pancreatitis"
+        },
+        {
+          "id": "severe_gastroparesis",
+          "condition": "Severe gastroparesis"
+        },
+        {
+          "id": "pregnancy",
+          "condition": "Pregnancy or planning to become pregnant"
+        }
+      ]
+    },
+    {
+      "id": "baseline_documentation",
+      "type": "required",
+      "condition": "Required baseline documentation must be provided",
+      "parameters": {
+        "threshold_value": "90",
+        "threshold_operator": "<=",
+        "unit": "days"
+      },
+      "sub_conditions": [
+        {
+          "id": "current_hba1c",
+          "condition": "Current HbA1c level (within last 90 days)"
+        },
+        {
+          "id": "weight_bmi",
+          "condition": "Current weight/BMI"
+        },
+        {
+          "id": "liver_function",
+          "condition": "Liver function tests (ALT, AST)"
+        },
+        {
+          "id": "renal_function",
+          "condition": "Renal function (eGFR)"
+        }
+      ],
+      "exceptions": []
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+CLINICAL POLICY: CardioGuard (propranolol extended-release)
+EFFECTIVE DATE: 06/01/2025
+LAST REVIEW DATE: 05/20/2025
+
+I. INDICATIONS
+CardioGuard is indicated for the treatment of hypertension.
+
+II. CRITERIA FOR INITIAL APPROVAL
+CardioGuard may be approved when the following criteria are met:
+1. Diagnosis: Member has a confirmed diagnosis of hypertension.
+2. Age: Member is ≥ 18 years of age.
+3. Prior Therapy: Member has tried and failed at least two of the following first-line agents:
+   a. Thiazide diuretic
+   b. ACE inhibitor
+   c. Angiotensin II receptor blocker (ARB)
+   d. Calcium channel blocker
+4. Contraindications: Member does NOT have any of the following:
+   a. Asthma
+   b. Sinus bradycardia
+   c. Second- or third-degree heart block
+
+III. DURATION OF APPROVAL
+Initial approval: 6 months
+Renewal approval: 12 months
+
+IV. RENEWAL CRITERIA
+For renewal, the following must be demonstrated:
+1. Member shows a reduction in blood pressure from baseline.
+2. Member is tolerating therapy without significant adverse effects.
