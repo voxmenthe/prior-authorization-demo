@@ -16,7 +16,29 @@ def parse_tree_data(tree_json: dict) -> dict:
     if "decision_tree" in tree_json:
         nodes_data = tree_json["decision_tree"]["nodes"]
         if isinstance(nodes_data, str):
-            nodes = json.loads(nodes_data)
+            try:
+                parsed_nodes = json.loads(nodes_data)
+                # Extract the nodes dictionary from the parsed structure
+                if "nodes" in parsed_nodes:
+                    nodes = parsed_nodes["nodes"]
+                else:
+                    nodes = parsed_nodes
+            except json.JSONDecodeError as e:
+                print(f"JSON decode error: {e}")
+                print(f"Attempting to clean invalid control characters...")
+                # Clean invalid control characters
+                import re
+                cleaned_data = re.sub(r'[\f\r\n\t\v\b\a]', '', nodes_data)
+                try:
+                    parsed_nodes = json.loads(cleaned_data)
+                    if "nodes" in parsed_nodes:
+                        nodes = parsed_nodes["nodes"]
+                    else:
+                        nodes = parsed_nodes
+                    print("✅ Successfully cleaned and parsed JSON")
+                except json.JSONDecodeError as e2:
+                    print(f"❌ Still couldn't parse after cleaning: {e2}")
+                    return {"nodes": {}}
         else:
             nodes = nodes_data
     else:
@@ -29,6 +51,7 @@ def generate_dot_content(tree_data: dict, title: str = "Decision Tree") -> str:
     """Generate DOT format content for Graphviz."""
     nodes = tree_data["nodes"]
     
+    
     dot_lines = [
         "digraph DecisionTree {",
         "    rankdir=TB;",
@@ -39,7 +62,9 @@ def generate_dot_content(tree_data: dict, title: str = "Decision Tree") -> str:
     ]
     
     # Add nodes
-    for node in nodes:
+    # If nodes is a dict, iterate over values; if list, iterate directly
+    node_list = nodes.values() if isinstance(nodes, dict) else nodes
+    for node in node_list:
         node_id = node["id"]
         node_type = node.get("type", "unknown").lower()
         
@@ -49,9 +74,9 @@ def generate_dot_content(tree_data: dict, title: str = "Decision Tree") -> str:
             wrapped_question = "\\n".join([question[i:i+40] for i in range(0, len(question), 40)])
             dot_lines.append(f'    {node_id} [label="{wrapped_question}", fillcolor=lightblue];')
         elif node_type == "outcome":
-            outcome = node.get("outcome", "Unknown Outcome")
+            decision = node.get("decision", "Unknown Outcome")
             # Wrap long outcomes
-            wrapped_outcome = "\\n".join([outcome[i:i+40] for i in range(0, len(outcome), 40)])
+            wrapped_outcome = "\\n".join([decision[i:i+40] for i in range(0, len(decision), 40)])
             dot_lines.append(f'    {node_id} [label="{wrapped_outcome}", fillcolor=lightgreen];')
         else:
             label = node.get("question", node.get("outcome", node_id))
@@ -61,24 +86,31 @@ def generate_dot_content(tree_data: dict, title: str = "Decision Tree") -> str:
     dot_lines.append("")
     
     # Add connections
-    for node in nodes:
+    for node in node_list:
         node_id = node["id"]
-        connections = node.get("connections", [])
+        connections = node.get("connections", {})
         
-        for connection in connections:
-            target = connection.get("target_node_id")
-            condition = connection.get("condition", "")
-            condition_value = connection.get("condition_value", "")
-            
-            if target:
-                label = ""
-                if condition and condition_value:
-                    label = f"{condition_value}"
+        # Handle new connections format: {"true": "n2", "false": "denied_general"}
+        if isinstance(connections, dict):
+            for condition, target in connections.items():
+                if target:
+                    dot_lines.append(f'    {node_id} -> {target} [label="{condition}"];')
+        else:
+            # Handle old format if still present
+            for connection in connections:
+                target = connection.get("target_node_id")
+                condition = connection.get("condition", "")
+                condition_value = connection.get("condition_value", "")
                 
-                if label:
-                    dot_lines.append(f'    {node_id} -> {target} [label="{label}"];')
-                else:
-                    dot_lines.append(f'    {node_id} -> {target};')
+                if target:
+                    label = ""
+                    if condition and condition_value:
+                        label = f"{condition_value}"
+                    
+                    if label:
+                        dot_lines.append(f'    {node_id} -> {target} [label="{label}"];')
+                    else:
+                        dot_lines.append(f'    {node_id} -> {target};')
     
     dot_lines.append("}")
     return "\n".join(dot_lines)

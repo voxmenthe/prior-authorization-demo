@@ -60,16 +60,23 @@ class TreeStructureAgent:
     
     def _determine_question_order(self, criteria: dict) -> list:
         prompt = f"""
-        Given these clinical criteria, determine the optimal order for asking questions in a decision tree.
+        Given these clinical criteria, determine the optimal order for asking questions in a decision tree 
+        that leads to efficient APPROVE/DENY decisions.
+
         Consider:
-        1. Most exclusionary criteria first (likely to result in denial)
-        2. Simple binary questions before complex ones
-        3. Logical flow (diagnosis -> age -> prior therapy -> contraindications)
-        4. Data collection at the end
+        1. Most exclusionary criteria first (likely to result in DENIAL - fail fast)
+        2. Expensive/complex checks last (only if cheaper checks pass)
+        3. Logical medical workflow (diagnosis -> eligibility -> contraindications -> documentation)
+        4. Group related criteria to minimize cognitive load
+        5. Put documentation requirements at the end (assuming clinical criteria pass)
 
         Criteria: {json.dumps(criteria, indent=2)}
 
-        Return an ordered list of criterion IDs with reasoning for the order.
+        IMPORTANT: Order criteria to minimize total questions needed for most common denial reasons.
+        Exclusionary criteria should be checked before inclusionary criteria when possible.
+
+        Return an ordered list of criterion IDs with reasoning for the order that optimizes for 
+        both user experience and processing efficiency.
         """
         
         try:
@@ -111,9 +118,197 @@ class TreeStructureAgent:
             raise TreeStructureError(f"Failed to create node from criterion: {str(e)}") from e
 
     def _generate_outcome_nodes(self, parsed_criteria: dict) -> list:
-        # Placeholder for generating outcome nodes
-        return []
+        # Use enhanced criteria parser if available
+        try:
+            from src.core.criteria_parser import CriteriaParser
+            parser = CriteriaParser()
+            enhanced_criteria = parser.enhance_criteria_relationships(parsed_criteria)
+        except ImportError:
+            enhanced_criteria = parsed_criteria
+        
+        # Generate specific denial outcomes for each criterion type
+        outcome_nodes = []
+        
+        # APPROVED outcome
+        outcome_nodes.append({
+            "id": "approved",
+            "type": "outcome",
+            "decision": "APPROVED",
+            "message": "Prior authorization approved. All required criteria have been met.",
+            "criteria_reference": "All criteria sections satisfied",
+            "next_steps": "Proceed with prescribed treatment. Monitor patient response and adhere to any ongoing requirements.",
+            "metadata": {
+                "approval_type": "full",
+                "requires_monitoring": True
+            }
+        })
+        
+        # Generate specific DENIED outcomes based on criteria types
+        criteria_list = parsed_criteria.get("criteria_list", [])
+        
+        # Denied for exclusionary criteria
+        exclusionary_criteria = [c for c in criteria_list if c.get("type") == "EXCLUSIONARY"]
+        for criterion in exclusionary_criteria:
+            outcome_nodes.append({
+                "id": f"denied_{criterion['id']}",
+                "type": "outcome",
+                "decision": "DENIED",
+                "message": f"Prior authorization denied due to exclusionary condition: {criterion.get('description', criterion['id'])}",
+                "criteria_reference": criterion["id"],
+                "next_steps": "This is an absolute contraindication. Alternative treatment options should be considered.",
+                "metadata": {
+                    "denial_type": "exclusionary",
+                    "criterion_violated": criterion["id"],
+                    "is_appealable": False
+                }
+            })
+        
+        # Denied for missing required criteria
+        required_criteria = [c for c in criteria_list if c.get("type") in ["REQUIRED", "THRESHOLD"]]
+        for criterion in required_criteria:
+            outcome_nodes.append({
+                "id": f"denied_{criterion['id']}_missing",
+                "type": "outcome", 
+                "decision": "DENIED",
+                "message": f"Prior authorization denied: Required criterion not met - {criterion.get('description', criterion['id'])}",
+                "criteria_reference": criterion["id"],
+                "next_steps": "Obtain required documentation or meet the specified criteria, then resubmit request.",
+                "metadata": {
+                    "denial_type": "missing_requirement",
+                    "criterion_violated": criterion["id"],
+                    "is_appealable": True
+                }
+            })
+        
+        # Denied for missing documentation
+        documentation_criteria = [c for c in criteria_list if c.get("type") == "DOCUMENTATION"]
+        for criterion in documentation_criteria:
+            outcome_nodes.append({
+                "id": f"denied_{criterion['id']}_docs",
+                "type": "outcome",
+                "decision": "DENIED", 
+                "message": f"Prior authorization denied: Missing required documentation - {criterion.get('description', criterion['id'])}",
+                "criteria_reference": criterion["id"],
+                "next_steps": "Submit the required documentation and resubmit the prior authorization request.",
+                "metadata": {
+                    "denial_type": "missing_documentation",
+                    "criterion_violated": criterion["id"],
+                    "is_appealable": True
+                }
+            })
+        
+        # General denial fallback
+        outcome_nodes.append({
+            "id": "denied_general",
+            "type": "outcome",
+            "decision": "DENIED",
+            "message": "Prior authorization denied. One or more criteria not satisfied.",
+            "criteria_reference": "Multiple criteria",
+            "next_steps": "Review all criteria requirements and provide missing information. Contact provider for guidance.",
+            "metadata": {
+                "denial_type": "general",
+                "is_appealable": True
+            }
+        })
+        
+        if self.verbose:
+            print(f"   ✅ Generated {len(outcome_nodes)} specific outcome nodes")
+            
+        return outcome_nodes
 
     def _connect_nodes(self, nodes: list, parsed_criteria: dict) -> dict:
-        # Placeholder for connecting nodes
-        return {"nodes": nodes}
+        prompt = f"""
+        Connect these decision tree nodes with proper logic flow to reach APPROVE/DENY decisions:
+        
+        Nodes: {json.dumps(nodes, indent=2)}
+        Criteria: {json.dumps(parsed_criteria, indent=2)}
+        
+        Connection Logic Rules:
+        1. Start with most exclusionary criteria first (fail-fast approach)
+        2. Each question node should connect to:
+           - Next question on success (if not final)
+           - Appropriate DENIED outcome on failure
+           - APPROVED outcome only after all criteria pass
+        3. Ensure every path leads to a definitive decision
+        4. No orphaned nodes - every node must be reachable
+        
+        Return the complete tree structure with all connections properly mapped.
+        Format as:
+        {{
+            "start_node": "id_of_first_node",
+            "nodes": {{
+                "node_id": {{
+                    "...node_data...",
+                    "connections": {{
+                        "yes": "next_node_id_on_success",
+                        "no": "denied_outcome_id_on_failure"
+                    }}
+                }}
+            }}
+        }}
+        """
+        
+        try:
+            response = self.llm.generate_text(prompt)
+            # Parse the JSON response
+            import re
+            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            if json_match:
+                connected_tree = json.loads(json_match.group())
+                if self.verbose:
+                    print(f"   ✅ Connected {len(connected_tree.get('nodes', {}))} nodes")
+                return connected_tree
+            else:
+                # Fallback: create basic linear connection
+                return self._create_fallback_connections(nodes)
+        except Exception as e:
+            if self.verbose:
+                print(f"   ⚠️ Error connecting nodes: {str(e)}")
+            return self._create_fallback_connections(nodes)
+    
+    def _create_fallback_connections(self, nodes: list) -> dict:
+        """Create a basic linear connection between nodes as fallback"""
+        if not nodes:
+            return {"nodes": {}}
+        
+        # Separate question nodes from outcome nodes
+        question_nodes = [n for n in nodes if n.get("type") != "outcome"]
+        outcome_nodes = [n for n in nodes if n.get("type") == "outcome"]
+        
+        # Find APPROVED and DENIED outcomes
+        approved_node = next((n for n in outcome_nodes if n.get("decision") == "APPROVED"), None)
+        denied_node = next((n for n in outcome_nodes if n.get("decision") == "DENIED"), None)
+        
+        # Build connections
+        tree_nodes = {}
+        start_node = None
+        
+        # Add all nodes to tree
+        for node in nodes:
+            tree_nodes[node["id"]] = node.copy()
+        
+        # Connect question nodes in sequence
+        for i, node in enumerate(question_nodes):
+            node_id = node["id"]
+            if i == 0:
+                start_node = node_id
+            
+            # Add connections
+            if i < len(question_nodes) - 1:
+                # Not the last question - connect to next question on success
+                next_node_id = question_nodes[i + 1]["id"]
+                tree_nodes[node_id]["connections"] = {
+                    "yes": next_node_id,
+                    "no": denied_node["id"] if denied_node else "denied_general"
+                }
+            else:
+                # Last question - connect to final outcomes
+                tree_nodes[node_id]["connections"] = {
+                    "yes": approved_node["id"] if approved_node else "approved",
+                    "no": denied_node["id"] if denied_node else "denied_general"
+                }
+        
+        return {
+            "start_node": start_node or (nodes[0]["id"] if nodes else None),
+            "nodes": tree_nodes
+        }

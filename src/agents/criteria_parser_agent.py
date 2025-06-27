@@ -50,14 +50,20 @@ class CriteriaParserAgent:
         You are a medical criteria parser. Extract all approval criteria from the following text.
         For each criterion, identify:
         1. The main condition being checked
-        2. Whether it's required (ALL) or optional (ANY)
-        3. Sub-conditions and their relationships
-        4. Specific thresholds, values, or requirements
-        5. Exceptions or contraindications
+        2. Criterion type: INCLUSIONARY (must be true for approval), EXCLUSIONARY (if true, leads to denial), or DOCUMENTATION (required paperwork)
+        3. Whether it's required (ALL) or optional (ANY)
+        4. Sub-conditions and their relationships
+        5. Specific thresholds, values, or requirements
+        6. Exceptions or contraindications
+
+        IMPORTANT: Clearly distinguish between:
+        - Inclusionary criteria (e.g., "must have Type 2 diabetes")
+        - Exclusionary criteria (e.g., "must NOT have history of pancreatitis")
+        - Documentation requirements (e.g., "must provide HbA1c results")
 
         Text: {text}
 
-        Return a structured JSON that adheres to the provided schema.
+        Return a structured JSON with each criterion properly classified for decision tree generation that leads to clear APPROVE/DENY outcomes.
         """
         
         try:
