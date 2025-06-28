@@ -25,6 +25,12 @@ class ConflictResolver:
         Returns:
             Dictionary with resolved tree and resolution details
         """
+        # Ensure conflicts is a list
+        if not isinstance(conflicts, list):
+            if self.verbose:
+                print(f"   ⚠️  Warning: Expected list for conflicts, got {type(conflicts)}")
+            conflicts = []
+        
         if not conflicts:
             return {
                 'tree': tree,
@@ -68,6 +74,22 @@ class ConflictResolver:
         """Group conflicts by their type."""
         grouped = {}
         for conflict in conflicts:
+            # Ensure conflict is a dict, not a string
+            if isinstance(conflict, str):
+                if self.verbose:
+                    print(f"   ⚠️  Warning: Expected dict for conflict, got string: {conflict}")
+                # Try to create a minimal conflict dict from the string
+                conflict = {
+                    'type': 'unknown',
+                    'description': conflict,
+                    'nodes': [],
+                    'severity': 'medium'
+                }
+            elif not isinstance(conflict, dict):
+                if self.verbose:
+                    print(f"   ⚠️  Warning: Expected dict for conflict, got {type(conflict)}: {conflict}")
+                continue
+            
             conflict_type = conflict.get('type', 'unknown')
             if conflict_type not in grouped:
                 grouped[conflict_type] = []

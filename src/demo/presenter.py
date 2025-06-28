@@ -164,10 +164,8 @@ class VisualPresenter:
             tree_data: Decision tree data structure
             document_name: Name of source document
         """
-        # Extract medication name if available
-        medication = "Unknown Medication"
-        if "metadata" in tree_data:
-            medication = tree_data["metadata"].get("document", document_name).replace("_criteria.txt", "")
+        # Extract medication name from document name
+        medication = document_name.replace("_criteria.txt", "").replace(".txt", "").title()
         
         tree_title = f"📊 GENERATED DECISION TREE: {medication}"
         
@@ -177,10 +175,24 @@ class VisualPresenter:
             guide_style=self.colors.MUTED
         )
         
-        # Add tree nodes (simplified structure for demo)
-        if "decision_tree" in tree_data and "nodes" in tree_data["decision_tree"]:
-            nodes = tree_data["decision_tree"]["nodes"]
-            self._build_tree_nodes(tree, nodes[:5])  # Limit to first 5 nodes for readability
+        # Check if tree_data has nodes and handle both dict and list formats
+        if tree_data and "nodes" in tree_data:
+            nodes = tree_data["nodes"]
+            
+            # If nodes is a dictionary (node_id -> node_data), convert to list and build tree
+            if isinstance(nodes, dict):
+                # Get start node if available
+                start_node_id = tree_data.get("start_node")
+                if start_node_id and start_node_id in nodes:
+                    # Build tree starting from start_node
+                    self._build_tree_from_dict(tree, nodes, start_node_id, visited=set())
+                else:
+                    # Convert dict to list and build
+                    nodes_list = list(nodes.values())
+                    self._build_tree_nodes(tree, nodes_list)
+            else:
+                # nodes is already a list
+                self._build_tree_nodes(tree, nodes)
         else:
             # Fallback generic structure
             age_branch = tree.add(f"[{self.colors.INFO}]Age >= 18?[/{self.colors.INFO}]")
@@ -201,28 +213,122 @@ class VisualPresenter:
         
         self.console.print(tree_panel)
     
+    def _build_tree_from_dict(self, parent_tree: Tree, nodes: Dict[str, Any], 
+                              node_id: str, visited: set, depth: int = 0) -> None:
+        """Build tree recursively from dict format nodes."""
+        if node_id in visited or depth > 10:  # Prevent infinite loops
+            return
+        
+        visited.add(node_id)
+        
+        if node_id not in nodes:
+            return
+        
+        node = nodes[node_id]
+        
+        # Determine node text and color
+        if node.get("type") == "outcome":
+            decision = node.get("decision", "UNKNOWN")
+            message = node.get("message", decision)
+            if decision == "APPROVED":
+                color = self.colors.SUCCESS
+                icon = "✅"
+            elif decision == "DENIED":
+                color = self.colors.ERROR
+                icon = "❌"
+            else:
+                color = self.colors.WARNING
+                icon = "⚠️"
+            node_text = f"{icon} {message[:80]}..." if len(message) > 80 else f"{icon} {message}"
+        else:
+            # Regular question node
+            question = node.get("question", node.get("condition", f"Node {node_id}"))
+            node_text = question
+            color = self.colors.INFO
+        
+        # Add this node to the tree
+        branch = parent_tree.add(f"[{color}]{node_text}[/{color}]")
+        
+        # Add connections if they exist
+        connections = node.get("connections", {})
+        if connections:
+            # Handle different connection formats
+            if isinstance(connections, dict):
+                # Format: {"yes": "next_node", "no": "other_node"}
+                for condition, target_id in connections.items():
+                    if target_id and target_id in nodes:
+                        target_node = nodes[target_id]
+                        target_type = target_node.get("type", "")
+                        
+                        # Create sub-branch label with better formatting
+                        if target_type == "outcome":
+                            decision = target_node.get("decision", "Unknown")
+                            if decision == "APPROVED":
+                                target_label = f"[{condition}] → ✅ APPROVED"
+                            elif decision == "DENIED":
+                                target_label = f"[{condition}] → ❌ DENIED"
+                            else:
+                                target_label = f"[{condition}] → {decision}"
+                        else:
+                            # Show a preview of the next question
+                            next_question = target_node.get("question", "Next Question")
+                            if len(next_question) > 40:
+                                next_question = next_question[:40] + "..."
+                            target_label = f"[{condition}] → {next_question}"
+                        
+                        sub_branch = branch.add(f"[{self.colors.MUTED}]{target_label}[/{self.colors.MUTED}]")
+                        
+                        # Recursively build the subtree (but not for outcomes)
+                        if target_type != "outcome":
+                            self._build_tree_from_dict(sub_branch, nodes, target_id, visited, depth + 1)
+            elif isinstance(connections, list):
+                # Format: [{"condition": "...", "target": "..."}]
+                for conn in connections:
+                    if isinstance(conn, dict):
+                        condition = conn.get("condition", "Condition")
+                        target_id = conn.get("target", conn.get("target_node_id"))
+                        if target_id:
+                            sub_branch = branch.add(f"[{self.colors.MUTED}][{condition}] → {target_id}[/{self.colors.MUTED}]")
+
     def _build_tree_nodes(self, tree: Tree, nodes: List[Dict[str, Any]]) -> None:
         """Helper method to build tree nodes from decision tree data."""
         for i, node in enumerate(nodes):
             if isinstance(node, dict):
-                node_text = node.get("question", f"Decision Point {i+1}")
+                # Get node text based on type
                 node_type = node.get("type", "unknown")
                 
-                if node_type == "criteria":
-                    color = self.colors.INFO
-                elif node_type == "outcome":
-                    color = self.colors.SUCCESS
+                if node_type == "outcome":
+                    decision = node.get("decision", "Unknown")
+                    message = node.get("message", decision)
+                    if decision == "APPROVED":
+                        color = self.colors.SUCCESS
+                        icon = "✅"
+                    elif decision == "DENIED":
+                        color = self.colors.ERROR
+                        icon = "❌"
+                    else:
+                        color = self.colors.WARNING
+                        icon = "⚠️"
+                    node_text = f"{icon} {message[:60]}..." if len(message) > 60 else f"{icon} {message}"
                 else:
-                    color = self.colors.MUTED
+                    # Regular question node
+                    node_text = node.get("question", node.get("condition", f"Decision Point {i+1}"))
+                    color = self.colors.INFO
                 
                 branch = tree.add(f"[{color}]{node_text}[/{color}]")
                 
-                # Add simplified outcomes
-                if "connections" in node and node["connections"]:
-                    for j, conn in enumerate(node["connections"][:2]):  # Limit connections
+                # Add connections
+                connections = node.get("connections", {})
+                if isinstance(connections, dict):
+                    # Dict format: {"yes": "target_id", "no": "target_id"}
+                    for condition, target in connections.items():
+                        branch.add(f"[{self.colors.MUTED}][{condition}] → {target}[/{self.colors.MUTED}]")
+                elif isinstance(connections, list):
+                    # List format: [{"condition": "...", "target_node_id": "..."}]
+                    for conn in connections[:2]:  # Limit to avoid clutter
                         if isinstance(conn, dict):
-                            condition = conn.get("condition", f"Option {j+1}")
-                            target = conn.get("target_node_id", "Next Step")
+                            condition = conn.get("condition", "Option")
+                            target = conn.get("target_node_id", conn.get("target", "Next"))
                             branch.add(f"[{self.colors.MUTED}][{condition}] → {target}[/{self.colors.MUTED}]")
     
     def show_processing_summary(self, session: DemoSession) -> None:
