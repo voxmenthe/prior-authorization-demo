@@ -121,7 +121,20 @@ class EnhancedVisualPresenter:
     
     def create_inline_tree_visual(self, tree_data: Dict[str, Any], highlight_node: str = None) -> Panel:
         """Create inline Unicode tree visualization using enhanced renderer."""
-        tree_renderer = UnicodeTreeRenderer()
+        # Add debug check for tree_data structure
+        if tree_data and isinstance(tree_data, dict):
+            nodes = tree_data.get('nodes', {})
+            if nodes:
+                # Check for any non-string connection values
+                for node_id, node in nodes.items():
+                    if isinstance(node, dict):
+                        connections = node.get('connections', {})
+                        if isinstance(connections, dict):
+                            for key, value in connections.items():
+                                if not isinstance(value, str):
+                                    console.print(f"[red]Warning: Non-string connection found in node {node_id}: {key}={type(value).__name__}[/red]")
+        
+        tree_renderer = UnicodeTreeRenderer(max_depth=TREE_DISPLAY_MAX_DEPTH)
         tree_visual = tree_renderer.render_tree(tree_data, highlight_node, show_connections=True)
         
         return Panel(
@@ -341,7 +354,7 @@ class EnhancedVisualPresenter:
     
     def animate_agent_workflow(self, document_path: str) -> None:
         """Show animated workflow with real-time updates using enhanced visualizer."""
-        layout_manager = RealTimeLayoutManager(self.console)
+        layout_manager = RealTimeLayoutManager(self.console, max_tree_depth=TREE_DISPLAY_MAX_DEPTH)
         processing_steps = create_demo_processing_steps()
         
         # Use the enhanced animation system

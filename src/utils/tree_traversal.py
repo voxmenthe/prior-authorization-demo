@@ -241,7 +241,10 @@ def validate_tree_structure(nodes: Dict[str, Any]) -> Tuple[bool, List[str]]:
                 
                 if isinstance(connections, dict):
                     for condition, target_id in connections.items():
-                        if target_id in all_nodes:
+                        # Handle case where target_id might be a dict
+                        if isinstance(target_id, dict):
+                            target_id = target_id.get('id')
+                        if target_id and target_id in all_nodes:
                             children.append(all_nodes[target_id])
                 elif isinstance(connections, list):
                     for conn in connections:
@@ -271,11 +274,26 @@ def find_root_nodes(nodes: Dict[str, Any]) -> List[Dict[str, Any]]:
         connections = node.get('connections', {})
         
         if isinstance(connections, dict):
-            referenced_nodes.update(connections.values())
+            # Ensure we only add hashable string values
+            for conn_value in connections.values():
+                if isinstance(conn_value, str):
+                    referenced_nodes.add(conn_value)
+                elif isinstance(conn_value, dict):
+                    # Try to extract ID from dict value
+                    if 'id' in conn_value:
+                        referenced_nodes.add(conn_value['id'])
+                        logger.warning(f"Dict found in connection value, extracted ID: {conn_value['id']}")
+                    else:
+                        logger.warning(f"Dict connection value without 'id' field: {conn_value}")
+                elif conn_value is not None:
+                    # Log warning if non-string value found
+                    logger.warning(f"Non-string connection value found: {type(conn_value).__name__} - {conn_value}")
         elif isinstance(connections, list):
             for conn in connections:
                 if isinstance(conn, dict) and 'target_node_id' in conn:
-                    referenced_nodes.add(conn['target_node_id'])
+                    target_id = conn['target_node_id']
+                    if isinstance(target_id, str):
+                        referenced_nodes.add(target_id)
     
     root_nodes = [
         node for node_id, node in nodes.items()
@@ -325,7 +343,10 @@ def detect_circular_references(tree: Dict[str, Any]) -> List[List[str]]:
         
         if isinstance(connections, dict):
             for condition, target_id in connections.items():
-                if target_id in nodes:
+                # Handle case where target_id might be a dict
+                if isinstance(target_id, dict):
+                    target_id = target_id.get('id')
+                if target_id and target_id in nodes:
                     dfs(target_id, path.copy(), visiting.copy())
         elif isinstance(connections, list):
             for conn in connections:
@@ -383,7 +404,10 @@ def find_all_paths(tree: Dict[str, Any], start_node_id: str, end_node_id: str) -
         
         if isinstance(connections, dict):
             for condition, next_id in connections.items():
-                if next_id in nodes and next_id not in visited:
+                # Handle case where next_id might be a dict
+                if isinstance(next_id, dict):
+                    next_id = next_id.get('id')
+                if next_id and next_id in nodes and next_id not in visited:
                     dfs(next_id, target_id, path.copy(), visited.copy())
         elif isinstance(connections, list):
             for conn in connections:

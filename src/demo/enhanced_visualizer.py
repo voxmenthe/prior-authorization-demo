@@ -153,8 +153,9 @@ class AgentInsightRenderer:
 class UnicodeTreeRenderer:
     """Renders decision trees using Unicode art."""
     
-    def __init__(self):
+    def __init__(self, max_depth: int = 25):
         self.node_styles = TreeNodeStyle()
+        self.max_depth = max_depth
     
     def render_tree(self, tree_data: Dict[str, Any], 
                    highlight_node: str = None,
@@ -230,7 +231,7 @@ class UnicodeTreeRenderer:
         
         # Create safe traverser
         config = TraversalConfig(
-            max_depth=25,
+            max_depth=self.max_depth,
             detect_cycles=True,
             raise_on_cycle=False,
             log_warnings=True
@@ -338,11 +339,19 @@ class UnicodeTreeRenderer:
         for node in nodes.values():
             connections = node.get('connections', {})
             if isinstance(connections, dict):
-                referenced_ids.update(connections.values())
+                # Ensure we only add hashable string values
+                for conn_value in connections.values():
+                    if isinstance(conn_value, str):
+                        referenced_ids.add(conn_value)
+                    else:
+                        # Log warning if non-string value found
+                        print(f"Warning: Non-string connection value found: {type(conn_value).__name__}")
             elif isinstance(connections, list):
                 for conn in connections:
-                    if 'target_node_id' in conn:
-                        referenced_ids.add(conn['target_node_id'])
+                    if isinstance(conn, dict) and 'target_node_id' in conn:
+                        target_id = conn['target_node_id']
+                        if isinstance(target_id, str):
+                            referenced_ids.add(target_id)
         
         # Find nodes that are not referenced by others
         root_nodes = [node for node in nodes.values() 
@@ -435,10 +444,10 @@ class UnicodeTreeRenderer:
 class RealTimeLayoutManager:
     """Manages real-time layouts for the enhanced demo."""
     
-    def __init__(self, console: Console):
+    def __init__(self, console: Console, max_tree_depth: int = 25):
         self.console = console
         self.agent_renderer = AgentInsightRenderer(console)
-        self.tree_renderer = UnicodeTreeRenderer()
+        self.tree_renderer = UnicodeTreeRenderer(max_depth=max_tree_depth)
     
     def create_processing_layout(self) -> Layout:
         """Create layout for real-time processing visualization."""

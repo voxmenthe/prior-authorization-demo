@@ -256,6 +256,8 @@ class TreeStructureAgent:
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if json_match:
                 connected_tree = json.loads(json_match.group())
+                # Fix connections that might have dict values instead of string node IDs
+                connected_tree = self._fix_connections_format(connected_tree)
                 if self.verbose:
                     print(f"   ✅ Connected {len(connected_tree.get('nodes', {}))} nodes")
                 return connected_tree
@@ -266,6 +268,60 @@ class TreeStructureAgent:
             if self.verbose:
                 print(f"   ⚠️ Error connecting nodes: {str(e)}")
             return self._create_fallback_connections(nodes)
+    
+    def _fix_connections_format(self, tree: dict) -> dict:
+        """
+        Fix connections that have dict values instead of string node IDs.
+        
+        Sometimes the LLM returns full node objects in connections instead of just IDs.
+        This method ensures connections only contain string node IDs.
+        """
+        nodes = tree.get('nodes', {})
+        
+        for node_id, node in nodes.items():
+            connections = node.get('connections', {})
+            
+            if isinstance(connections, dict):
+                # Fix dict-style connections (e.g., {"yes": ..., "no": ...})
+                fixed_connections = {}
+                for condition, target in connections.items():
+                    if isinstance(target, dict):
+                        # Extract the ID from the dict
+                        target_id = target.get('id')
+                        if target_id:
+                            fixed_connections[condition] = target_id
+                        else:
+                            if self.verbose:
+                                print(f"   ⚠️ Warning: No ID found in connection dict for {node_id}[{condition}]")
+                    else:
+                        # Already a string or other valid format
+                        fixed_connections[condition] = target
+                
+                node['connections'] = fixed_connections
+                
+            elif isinstance(connections, list):
+                # Fix list-style connections (e.g., [{"target_node_id": ..., "condition": ...}])
+                fixed_connections = []
+                for conn in connections:
+                    if isinstance(conn, dict):
+                        # Check if target_node_id is a dict instead of string
+                        target = conn.get('target_node_id')
+                        if isinstance(target, dict):
+                            # Extract the ID from the dict
+                            target_id = target.get('id')
+                            if target_id:
+                                conn['target_node_id'] = target_id
+                            else:
+                                if self.verbose:
+                                    print(f"   ⚠️ Warning: No ID found in connection target dict for {node_id}")
+                        fixed_connections.append(conn)
+                    else:
+                        # Keep as is if not a dict
+                        fixed_connections.append(conn)
+                
+                node['connections'] = fixed_connections
+        
+        return tree
     
     def _create_fallback_connections(self, nodes: list) -> dict:
         """Create a basic linear connection between nodes as fallback"""
