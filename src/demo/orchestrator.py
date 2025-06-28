@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from src.core.decision_tree_generator import DecisionTreeGenerator
+from src.utils.json_utils import normalize_json_output
 from src.core.exceptions import (
     DecisionTreeGenerationError,
     CriteriaParsingError,
@@ -245,8 +246,12 @@ class DemoOrchestrator:
         if result.metadata:
             output_data["metadata"].update(result.metadata)
         
+        # Normalize the JSON output before saving
+        normalized_data = normalize_json_output(output_data)
+        
         with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, indent=2, ensure_ascii=False)
+            # Write the normalized JSON string directly
+            f.write(normalized_data)
 
     def _save_session_report(self) -> None:
         """Save comprehensive session report."""

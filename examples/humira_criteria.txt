@@ -1,0 +1,69 @@
+CLINICAL POLICY: Humira (adalimumab)
+EFFECTIVE DATE: 01/01/2024
+LAST REVIEW DATE: 10/15/2024
+
+I. INDICATIONS
+Humira is a tumor necrosis factor (TNF) blocker indicated for the treatment of:
+- Rheumatoid Arthritis (RA)
+- Psoriatic Arthritis
+- Ankylosing Spondylitis
+- Crohn's Disease
+- Ulcerative Colitis
+- Plaque Psoriasis
+- Hidradenitis Suppurativa
+- Uveitis
+
+II. CRITERIA FOR INITIAL APPROVAL
+Humira may be approved when ALL of the following criteria are met:
+
+1. Diagnosis: Patient has ONE of the following confirmed diagnoses:
+   a. Moderately to severely active rheumatoid arthritis
+   b. Active psoriatic arthritis
+   c. Active ankylosing spondylitis
+   d. Moderately to severely active Crohn's disease
+   e. Moderately to severely active ulcerative colitis
+   f. Chronic plaque psoriasis covering ≥ 3% body surface area
+   g. Moderate to severe hidradenitis suppurativa
+   h. Non-infectious intermediate, posterior, or panuveitis
+
+2. Age Requirement: Patient is ≥ 18 years of age (or ≥ 6 years for certain pediatric indications)
+
+3. Prior Therapy Requirement:
+   a. For RA, PsA, or AS: Trial and failure of at least TWO conventional DMARDs (e.g., methotrexate, sulfasalazine, leflunomide) for ≥ 3 months each, unless contraindicated
+   b. For Crohn's or UC: Trial and failure of conventional therapy (e.g., corticosteroids, immunomodulators) for ≥ 8 weeks
+   c. For Plaque Psoriasis: Trial and failure of at least ONE systemic therapy (e.g., methotrexate, cyclosporine, acitretin) or phototherapy
+   d. For Hidradenitis Suppurativa: Trial and failure of oral antibiotics
+
+4. Baseline Testing: Patient has completed ALL of the following within 90 days:
+   a. Tuberculosis screening (TB skin test or QuantiFERON Gold)
+   b. Hepatitis B and C screening
+   c. Complete blood count (CBC)
+   d. Liver function tests (AST, ALT)
+
+5. Contraindications: Patient does NOT have any of the following:
+   a. Active infection requiring systemic treatment
+   b. Active tuberculosis or latent TB without appropriate prophylaxis
+   c. Moderate to severe heart failure (NYHA Class III/IV)
+   d. Demyelinating disease (e.g., multiple sclerosis)
+   e. Current malignancy (except adequately treated non-melanoma skin cancer)
+
+6. Prescriber Requirement: Prescribed by or in consultation with a specialist appropriate for the condition:
+   a. Rheumatologist (for RA, PsA, AS)
+   b. Gastroenterologist (for Crohn's, UC)
+   c. Dermatologist (for psoriasis, HS)
+   d. Ophthalmologist (for uveitis)
+
+III. DURATION OF APPROVAL
+Initial approval: 6 months
+Renewal approval: 12 months
+
+IV. RENEWAL CRITERIA
+For renewal, the following must be demonstrated:
+1. Clinical Response: Documentation of positive clinical response, including:
+   a. For RA/PsA/AS: Improvement in disease activity scores (e.g., DAS28, ACR20)
+   b. For IBD: Reduction in disease activity index scores
+   c. For Psoriasis: Improvement in PASI score or BSA affected
+   d. For HS: Reduction in inflammatory nodules and abscesses
+2. Absence of treatment-limiting adverse effects
+3. Updated TB screening annually
+4. Continued follow-up with appropriate specialist

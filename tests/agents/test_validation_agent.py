@@ -5,7 +5,7 @@ import json
 from unittest.mock import Mock, patch
 
 from src.agents.validation_agent import ValidationAgent
-from src.core.exceptions import ValidationError
+from src.core.exceptions import ValidationError, ConflictType
 from src.core.schemas import LogicalConsistencyCheck, ValidationIssue
 
 
@@ -221,6 +221,203 @@ class TestValidationAgent:
         assert isinstance(result["is_valid"], bool)
         assert isinstance(result["issues"], list)
         assert isinstance(result["suggestions"], list)
+
+    def test_validate_includes_conflicts(self):
+        """Test that validate method includes conflicts in results."""
+        mock_response = LogicalConsistencyCheck(issues=[])
+        
+        with patch.object(self.agent.llm, 'generate_structured_json', return_value=mock_response):
+            result = self.agent.validate(self.valid_tree)
+            
+        assert "conflicts" in result
+        assert isinstance(result["conflicts"], list)
+
+    def test_detect_contradictory_paths(self):
+        """Test detection of contradictory paths."""
+        # Create a tree with contradictory paths
+        tree_with_contradictions = {
+            "nodes": [
+                {
+                    "id": "check1",
+                    "type": "decision",
+                    "condition": "Has diabetes",
+                    "connections": [
+                        {"to": "approve"}
+                    ]
+                },
+                {
+                    "id": "check2", 
+                    "type": "decision",
+                    "condition": "Has diabetes",  # Same condition
+                    "connections": [
+                        {"to": "deny"}  # Different outcome
+                    ]
+                },
+                {
+                    "id": "approve",
+                    "type": "outcome",
+                    "decision": "APPROVE"
+                },
+                {
+                    "id": "deny",
+                    "type": "outcome", 
+                    "decision": "DENY"
+                }
+            ]
+        }
+        
+        conflicts = self.agent._detect_contradictory_paths(tree_with_contradictions)
+        
+        assert len(conflicts) > 0
+        assert conflicts[0]["type"] == ConflictType.CONTRADICTORY_PATHS.value
+        assert "Has diabetes" in conflicts[0]["description"]
+
+    def test_detect_circular_dependencies(self):
+        """Test detection of circular dependencies."""
+        # Mock the detect_circular_references utility
+        with patch('src.agents.validation_agent.detect_circular_references', return_value=[["node1", "node2", "node1"]]):
+            conflicts = self.agent._detect_circular_dependencies(self.invalid_tree)
+            
+        assert len(conflicts) == 1
+        assert conflicts[0]["type"] == ConflictType.CIRCULAR_DEPENDENCY.value
+        assert conflicts[0]["severity"] == "critical"
+
+    def test_detect_redundant_paths(self):
+        """Test detection of redundant paths."""
+        # Create tree with redundant paths
+        tree_with_redundancy = {
+            "nodes": [
+                {
+                    "id": "root",
+                    "type": "root"
+                },
+                {
+                    "id": "check1",
+                    "type": "decision", 
+                    "condition": "Age > 18"
+                },
+                {
+                    "id": "check2",
+                    "type": "decision",
+                    "condition": "Has insurance"
+                },
+                {
+                    "id": "approve",
+                    "type": "outcome",
+                    "decision": "APPROVE"
+                }
+            ]
+        }
+        
+        # Mock find_all_paths to return duplicate paths
+        mock_paths = [
+            [{"id": "root"}, {"id": "check1", "type": "decision", "condition": "Age > 18"}, {"id": "approve", "type": "outcome", "decision": "APPROVE"}],
+            [{"id": "root"}, {"id": "check1", "type": "decision", "condition": "Age > 18"}, {"id": "approve", "type": "outcome", "decision": "APPROVE"}]
+        ]
+        
+        with patch('src.agents.validation_agent.find_all_paths', return_value=mock_paths):
+            conflicts = self.agent._detect_redundant_paths(tree_with_redundancy)
+            
+        assert len(conflicts) > 0
+        assert any(c["type"] == ConflictType.REDUNDANT_PATHS.value for c in conflicts)
+
+    def test_detect_overlapping_conditions(self):
+        """Test detection of overlapping conditions."""
+        tree_with_overlaps = {
+            "nodes": [
+                {
+                    "id": "check1",
+                    "type": "decision",
+                    "condition": "Patient age greater than 65 years"
+                },
+                {
+                    "id": "check2",
+                    "type": "decision", 
+                    "condition": "Patient age over 65 with diabetes"
+                }
+            ]
+        }
+        
+        conflicts = self.agent._detect_overlapping_conditions(tree_with_overlaps)
+        
+        assert len(conflicts) > 0
+        assert conflicts[0]["type"] == ConflictType.OVERLAPPING_CONDITIONS.value
+        assert conflicts[0]["severity"] == "low"
+
+    def test_conditions_overlap_helper(self):
+        """Test the _conditions_overlap helper method."""
+        # Test overlapping conditions
+        assert self.agent._conditions_overlap(
+            "Patient age greater than 65",
+            "Patient age over 65 with diabetes"
+        ) is True
+        
+        # Test non-overlapping conditions
+        assert self.agent._conditions_overlap(
+            "Has insurance",
+            "Previous treatment failed"
+        ) is False
+        
+        # Test conditions with common words but not significant overlap
+        assert self.agent._conditions_overlap(
+            "The patient has insurance",
+            "The doctor has experience"
+        ) is False
+
+    def test_find_node_by_id(self):
+        """Test the _find_node_by_id helper method."""
+        nodes = [
+            {"id": "node1", "type": "decision"},
+            {"id": "node2", "type": "outcome"}
+        ]
+        
+        # Test existing node
+        node = self.agent._find_node_by_id(nodes, "node1")
+        assert node is not None
+        assert node["id"] == "node1"
+        
+        # Test non-existing node
+        node = self.agent._find_node_by_id(nodes, "node3")
+        assert node is None
+
+    def test_validate_marks_invalid_with_conflicts(self):
+        """Test that validation marks tree as invalid when conflicts are detected."""
+        # Create a tree that will have conflicts
+        tree_with_conflicts = {
+            "nodes": [
+                {
+                    "id": "check1",
+                    "type": "decision",
+                    "condition": "Has diabetes",
+                    "connections": [{"to": "approve"}]
+                },
+                {
+                    "id": "check2",
+                    "type": "decision", 
+                    "condition": "Has diabetes",
+                    "connections": [{"to": "deny"}]
+                },
+                {
+                    "id": "approve",
+                    "type": "outcome",
+                    "decision": "APPROVE"
+                },
+                {
+                    "id": "deny",
+                    "type": "outcome",
+                    "decision": "DENY"
+                }
+            ]
+        }
+        
+        mock_response = LogicalConsistencyCheck(issues=[])
+        
+        with patch.object(self.agent.llm, 'generate_structured_json', return_value=mock_response):
+            result = self.agent.validate(tree_with_conflicts)
+            
+        # Should be invalid due to conflicts
+        assert result["is_valid"] is False
+        assert len(result["conflicts"]) > 0
 
 
 if __name__ == "__main__":

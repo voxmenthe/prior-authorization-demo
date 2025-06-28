@@ -1,0 +1,70 @@
+CLINICAL POLICY: Repatha (evolocumab)
+EFFECTIVE DATE: 01/01/2024
+LAST REVIEW DATE: 10/15/2024
+
+I. INDICATIONS
+Repatha is a PCSK9 (proprotein convertase subtilisin/kexin type 9) inhibitor indicated as an adjunct to diet and maximally tolerated statin therapy for:
+- Adults with established cardiovascular disease to reduce the risk of myocardial infarction, stroke, and coronary revascularization
+- Adults with primary hyperlipidemia (including heterozygous familial hypercholesterolemia) to reduce LDL-C
+- Adults and pediatric patients aged ≥ 10 years with homozygous familial hypercholesterolemia
+
+II. CRITERIA FOR INITIAL APPROVAL
+Repatha may be approved when ALL of the following criteria are met:
+
+1. Diagnosis: Patient has ONE of the following conditions:
+   a. Atherosclerotic cardiovascular disease (ASCVD), defined as:
+      - History of myocardial infarction
+      - History of stroke or TIA
+      - Peripheral arterial disease
+      - History of coronary revascularization (PCI, CABG)
+      - Clinically significant coronary artery disease
+   b. Heterozygous familial hypercholesterolemia (HeFH) with LDL-C ≥ 100 mg/dL
+   c. Homozygous familial hypercholesterolemia (HoFH) confirmed by genetic testing or clinical criteria
+
+2. Age Requirement: 
+   a. For ASCVD or HeFH: Patient is ≥ 18 years of age
+   b. For HoFH: Patient is ≥ 10 years of age
+
+3. Baseline LDL-C Level:
+   a. For ASCVD: LDL-C ≥ 70 mg/dL despite maximally tolerated lipid-lowering therapy
+   b. For HeFH without ASCVD: LDL-C ≥ 100 mg/dL despite maximally tolerated therapy
+   c. For HoFH: LDL-C ≥ 130 mg/dL
+
+4. Prior Therapy Requirement: Patient has tried and failed to achieve LDL-C goals with:
+   a. High-intensity statin therapy (atorvastatin 40-80 mg or rosuvastatin 20-40 mg) for ≥ 8 weeks, OR
+   b. Maximally tolerated statin dose if unable to tolerate high-intensity statin due to documented adverse effects, AND
+   c. Ezetimibe 10 mg daily for ≥ 8 weeks (unless contraindicated)
+
+5. Statin Intolerance (if applicable): If claiming statin intolerance, must have:
+   a. Documented trial of at least TWO different statins
+   b. Adverse effects occurring at lowest FDA-approved doses
+   c. Resolution of symptoms upon discontinuation
+
+6. Laboratory Requirements: Within the past 90 days:
+   a. Fasting lipid panel documenting LDL-C level
+   b. Liver function tests (AST, ALT)
+   c. Creatine kinase (if history of statin-associated muscle symptoms)
+
+7. Contraindications: Patient does NOT have:
+   a. Known hypersensitivity to evolocumab or any component
+   b. Active liver disease or unexplained persistent elevations of transaminases
+
+8. Prescriber Requirement: Prescribed by or in consultation with:
+   a. Cardiologist
+   b. Endocrinologist
+   c. Lipid specialist
+
+III. DURATION OF APPROVAL
+Initial approval: 6 months
+Renewal approval: 12 months
+
+IV. RENEWAL CRITERIA
+For renewal, the following must be demonstrated:
+1. LDL-C Reduction: Achievement of ONE of the following:
+   a. LDL-C reduction of ≥ 50% from baseline, OR
+   b. LDL-C < 70 mg/dL for ASCVD patients, OR
+   c. LDL-C < 100 mg/dL for primary prevention patients
+2. Continued adherence to maximally tolerated statin therapy (unless contraindicated)
+3. Absence of treatment-limiting adverse effects
+4. Updated fasting lipid panel within past 6 months
+5. Continued follow-up with prescribing specialist

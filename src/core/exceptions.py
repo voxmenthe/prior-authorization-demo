@@ -1,5 +1,16 @@
 """Custom exceptions for the decision tree generation system."""
 
+from enum import Enum
+
+
+class ConflictType(Enum):
+    """Types of conflicts that can occur in decision trees."""
+    CONTRADICTORY_PATHS = "contradictory_paths"
+    CIRCULAR_DEPENDENCY = "circular_dependency"
+    REDUNDANT_PATHS = "redundant_paths"
+    OVERLAPPING_CONDITIONS = "overlapping_conditions"
+    INCOMPLETE_COVERAGE = "incomplete_coverage"
+
 
 class DecisionTreeGenerationError(Exception):
     """Base exception for decision tree generation errors."""

@@ -2,6 +2,7 @@ import json
 from src.core.llm_client import LlmClient
 from src.core.schemas import QuestionOrder, DecisionNode
 from src.core.exceptions import TreeStructureError
+from src.utils.json_utils import sanitize_json_for_prompt
 
 class TreeStructureAgent:
     def __init__(self, verbose: bool = False):
@@ -70,7 +71,7 @@ class TreeStructureAgent:
         4. Group related criteria to minimize cognitive load
         5. Put documentation requirements at the end (assuming clinical criteria pass)
 
-        Criteria: {json.dumps(criteria, indent=2)}
+        Criteria: {sanitize_json_for_prompt(criteria)}
 
         IMPORTANT: Order criteria to minimize total questions needed for most common denial reasons.
         Exclusionary criteria should be checked before inclusionary criteria when possible.
@@ -97,7 +98,7 @@ class TreeStructureAgent:
         prompt = f"""
         Convert this clinical criterion into a decision tree node question.
         
-        Criterion: {json.dumps(criterion, indent=2)}
+        Criterion: {sanitize_json_for_prompt(criterion)}
         
         Guidelines:
         1. Make the question clear and unambiguous
@@ -220,8 +221,8 @@ class TreeStructureAgent:
         prompt = f"""
         Connect these decision tree nodes with proper logic flow to reach APPROVE/DENY decisions:
         
-        Nodes: {json.dumps(nodes, indent=2)}
-        Criteria: {json.dumps(parsed_criteria, indent=2)}
+        Nodes: {sanitize_json_for_prompt(nodes)}
+        Criteria: {sanitize_json_for_prompt(parsed_criteria)}
         
         Connection Logic Rules:
         1. Start with most exclusionary criteria first (fail-fast approach)

@@ -1,0 +1,142 @@
+CLINICAL PRACTICE GUIDELINES: Dupixent (dupilumab) Patient Selection
+SOURCE: Joint Task Force Practice Parameter Update
+PUBLICATION DATE: 09/2024
+GUIDELINE VERSION: 2.0
+
+I. DISEASE SEVERITY ASSESSMENT TOOLS
+
+A. ATOPIC DERMATITIS SCORING
+1. EASI (Eczema Area and Severity Index):
+   - Mild: < 7
+   - Moderate: 7-16
+   - Severe: > 16
+   - Treatment threshold: ≥ 16 for biologics
+
+2. IGA (Investigator's Global Assessment):
+   - 0 = Clear
+   - 1 = Almost clear
+   - 2 = Mild
+   - 3 = Moderate (treatment threshold)
+   - 4 = Severe
+
+3. Pruritus NRS: 0-10 scale (significant if ≥ 4)
+
+B. ASTHMA PHENOTYPE CRITERIA
+1. Eosinophilic phenotype defined by:
+   a. Adults (≥ 18 years): Blood eosinophils ≥ 300 cells/μL
+   b. Adolescents (12-17 years): Blood eosinophils ≥ 150 cells/μL
+   c. Children (6-11 years): Blood eosinophils ≥ 150 cells/μL OR FeNO ≥ 20 ppb
+
+2. Alternative qualifying criteria:
+   - Sputum eosinophils ≥ 2% (if available)
+   - History of allergic asthma with total IgE > 100 IU/mL
+
+C. CRSwNP ASSESSMENT
+1. Nasal Polyp Score (NPS): 0-8 total (0-4 each nostril)
+   - Treatment threshold: ≥ 5
+2. SNOT-22 score: ≥ 30 indicates significant impact
+3. Smell test: Anosmia or severe hyposmia
+
+D. EoE DIAGNOSTIC CRITERIA
+1. Peak eosinophil count:
+   - ≥ 15 eosinophils per high-power field
+   - In ≥ 1 biopsy from either proximal or distal esophagus
+2. Dysphagia Symptom Questionnaire (DSQ) score ≥ 30
+
+E. PRURIGO NODULARIS ASSESSMENT
+1. Nodule count categories:
+   - Mild: < 20 nodules
+   - Moderate: 20-100 nodules
+   - Severe: > 100 nodules
+2. Pruritus NRS: Daily average ≥ 7 for one week
+3. DLQI score > 10 indicates severe impact
+
+II. PRIOR THERAPY SPECIFICATIONS
+
+A. ATOPIC DERMATITIS
+1. Topical corticosteroids:
+   - Class I-II (super/high potency) for ≥ 4 weeks
+   - OR Class III-IV with occlusion for ≥ 4 weeks
+2. Topical calcineurin inhibitors:
+   - Tacrolimus 0.1% BID for ≥ 6 weeks (adults)
+   - Tacrolimus 0.03% BID for ≥ 6 weeks (children)
+3. Systemic therapy (one required for severe):
+   - Cyclosporine 3-5 mg/kg/day for ≥ 12 weeks
+   - Methotrexate 15-25 mg/week for ≥ 12 weeks
+   - Phototherapy: NB-UVB 3x/week for ≥ 12 weeks
+
+B. ASTHMA
+1. High-dose ICS/LABA definitions by age:
+   - Adults: ≥ 500 mcg fluticasone propionate equivalent
+   - Children 6-11: ≥ 200 mcg fluticasone propionate equivalent
+2. Additional controllers tried for ≥ 3 months:
+   - LAMA (tiotropium)
+   - Leukotriene modifier
+   - Theophylline (if appropriate)
+
+C. CRSwNP
+1. Intranasal corticosteroids: Maximum dose for ≥ 8 weeks
+2. Systemic corticosteroids: ≥ 2 courses in past year
+3. Saline irrigations: Daily for ≥ 4 weeks
+4. Surgery consideration: If NPS ≥ 6 or prior surgery
+
+D. EoE
+1. PPI trial:
+   - Adults: Omeprazole 40 mg BID for 8 weeks
+   - Pediatrics: 1-2 mg/kg/day divided BID for 8 weeks
+2. Topical corticosteroids:
+   - Fluticasone 880-1760 mcg/day for 8 weeks
+   - OR Budesonide 2 mg/day for 8 weeks
+
+E. PRURIGO NODULARIS
+1. Super-potent topical corticosteroids under occlusion ≥ 4 weeks
+2. Systemic options (≥ 12 weeks trial):
+   - Gabapentin titrated to ≥ 1800 mg/day
+   - Pregabalin ≥ 300 mg/day
+   - Cyclosporine 3-5 mg/kg/day
+   - Methotrexate 15-25 mg/week
+
+III. CONTRAINDICATIONS & PRECAUTIONS
+1. Absolute contraindications:
+   - Known hypersensitivity to dupilumab
+   - Active helminth infection (must treat first)
+
+2. Relative contraindications requiring specialist input:
+   - History of conjunctivitis or keratitis
+   - Eosinophil count > 1500 cells/μL (evaluate for HES)
+   - Active varicella or herpes zoster
+
+3. Vaccination requirements:
+   - Complete age-appropriate vaccines before initiation
+   - No live vaccines during treatment
+
+IV. RESPONSE CRITERIA FOR CONTINUATION
+
+A. ATOPIC DERMATITIS
+- EASI-50 (50% improvement) by 16 weeks
+- OR IGA improvement of ≥ 2 points
+- AND Pruritus NRS reduction ≥ 3 points
+
+B. ASTHMA
+- 50% reduction in exacerbations
+- OR ACQ improvement ≥ 0.5
+- OR FEV1 improvement ≥ 100 mL
+
+C. CRSwNP
+- NPS reduction ≥ 2 points
+- OR SNOT-22 improvement ≥ 8.9 points
+- OR Smell identification improvement
+
+D. EoE
+- Peak eosinophil count < 15/hpf
+- OR DSQ improvement ≥ 30%
+
+E. PRURIGO NODULARIS
+- Nodule count reduction ≥ 25%
+- AND Pruritus NRS reduction ≥ 4 points
+
+V. SPECIAL POPULATIONS
+1. Pregnancy: Category B - use if benefit outweighs risk
+2. Elderly: No dose adjustment needed
+3. Hepatic/Renal impairment: No dose adjustment
+4. Transitioning from other biologics: Washout periods vary

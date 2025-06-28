@@ -287,3 +287,111 @@ def find_root_nodes(nodes: Dict[str, Any]) -> List[Dict[str, Any]]:
         root_nodes = [list(nodes.values())[0]]
     
     return root_nodes
+
+
+def detect_circular_references(tree: Dict[str, Any]) -> List[List[str]]:
+    """
+    Detect circular references in a tree structure.
+    
+    Args:
+        tree: Dictionary representing the tree with 'nodes' key
+        
+    Returns:
+        List of circular reference paths (each path is a list of node IDs)
+    """
+    if not tree or 'nodes' not in tree:
+        return []
+    
+    nodes = tree['nodes']
+    circular_refs = []
+    visited = set()
+    
+    def dfs(node_id: str, path: List[str], visiting: Set[str]):
+        if node_id in visiting:
+            # Found a cycle
+            cycle_start = path.index(node_id)
+            cycle = path[cycle_start:] + [node_id]
+            circular_refs.append(cycle)
+            return
+        
+        if node_id in visited:
+            return
+        
+        visiting.add(node_id)
+        path.append(node_id)
+        
+        node = nodes.get(node_id, {})
+        connections = node.get('connections', {})
+        
+        if isinstance(connections, dict):
+            for condition, target_id in connections.items():
+                if target_id in nodes:
+                    dfs(target_id, path.copy(), visiting.copy())
+        elif isinstance(connections, list):
+            for conn in connections:
+                if isinstance(conn, dict):
+                    target_id = conn.get('target_node_id')
+                    if target_id and target_id in nodes:
+                        dfs(target_id, path.copy(), visiting.copy())
+        
+        visiting.remove(node_id)
+        visited.add(node_id)
+    
+    # Start DFS from each unvisited node
+    for node_id in nodes:
+        if node_id not in visited:
+            dfs(node_id, [], set())
+    
+    return circular_refs
+
+
+def find_all_paths(tree: Dict[str, Any], start_node_id: str, end_node_id: str) -> List[List[str]]:
+    """
+    Find all paths from start node to end node in a tree.
+    
+    Args:
+        tree: Dictionary representing the tree with 'nodes' key
+        start_node_id: ID of the starting node
+        end_node_id: ID of the ending node
+        
+    Returns:
+        List of paths (each path is a list of node IDs)
+    """
+    if not tree or 'nodes' not in tree:
+        return []
+    
+    nodes = tree['nodes']
+    
+    if start_node_id not in nodes or end_node_id not in nodes:
+        return []
+    
+    all_paths = []
+    
+    def dfs(current_id: str, target_id: str, path: List[str], visited: Set[str]):
+        if current_id == target_id:
+            all_paths.append(path + [current_id])
+            return
+        
+        if current_id in visited:
+            return
+        
+        visited.add(current_id)
+        path.append(current_id)
+        
+        node = nodes.get(current_id, {})
+        connections = node.get('connections', {})
+        
+        if isinstance(connections, dict):
+            for condition, next_id in connections.items():
+                if next_id in nodes and next_id not in visited:
+                    dfs(next_id, target_id, path.copy(), visited.copy())
+        elif isinstance(connections, list):
+            for conn in connections:
+                if isinstance(conn, dict):
+                    next_id = conn.get('target_node_id')
+                    if next_id and next_id in nodes and next_id not in visited:
+                        dfs(next_id, target_id, path.copy(), visited.copy())
+    
+    dfs(start_node_id, end_node_id, [], set())
+    
+    return all_paths

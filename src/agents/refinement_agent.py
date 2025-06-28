@@ -1,11 +1,13 @@
-import json
 from src.core.llm_client import LlmClient
 from src.core.schemas import RefinedTreeSection, KeyValuePair
+from src.agents.conflict_resolver import ConflictResolver
+from src.utils.json_utils import sanitize_json_for_prompt
 
 class RefinementAgent:
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
         self.llm = LlmClient(verbose=verbose)
+        self.conflict_resolver = ConflictResolver(verbose=verbose)
         if verbose:
             print("🔧 RefinementAgent initialized")
         
@@ -14,10 +16,23 @@ class RefinementAgent:
             print(f"\n🔧 Refining tree based on validation results")
             issues_count = len(validation_results.get("issues", []))
             suggestions_count = len(validation_results.get("suggestions", []))
+            conflicts_count = len(validation_results.get("conflicts", []))
             print(f"   Issues to fix: {issues_count}")
             print(f"   Suggestions to implement: {suggestions_count}")
+            print(f"   Conflicts to resolve: {conflicts_count}")
         
         refined_tree = tree.copy()
+        
+        # Resolve conflicts first (highest priority)
+        conflicts = validation_results.get("conflicts", [])
+        if conflicts:
+            resolution_results = self.conflict_resolver.resolve_conflicts(refined_tree, conflicts)
+            refined_tree = resolution_results['tree']
+            
+            if self.verbose and resolution_results['resolutions']:
+                print(f"   ✓ Resolved {len(resolution_results['resolutions'])} conflicts")
+            if self.verbose and resolution_results['unresolved']:
+                print(f"   ⚠ Unable to resolve {len(resolution_results['unresolved'])} conflicts")
         
         # Fix identified issues
         for issue in validation_results.get("issues", []):
@@ -39,7 +54,7 @@ class RefinementAgent:
         prompt = f"""
         Fix the following issue in the decision tree:
         
-        Issue: {json.dumps(issue, indent=2)}
+        Issue: {sanitize_json_for_prompt(issue)}
         Current tree section: {self._extract_relevant_section(tree, issue.get("node_ids", []))}
         
         Provide the corrected tree section that resolves this issue while maintaining

@@ -1,0 +1,95 @@
+CLINICAL POLICY: Dupixent (dupilumab) - Insurance Medical Policy
+EFFECTIVE DATE: 01/15/2024
+LAST REVIEW DATE: 11/01/2024
+POLICY NUMBER: RX-2024-BIO-017
+
+I. COVERED INDICATIONS
+Dupixent is covered for the treatment of:
+- Moderate-to-severe atopic dermatitis (eczema)
+- Moderate-to-severe asthma with eosinophilic phenotype or oral corticosteroid dependence
+- Chronic rhinosinusitis with nasal polyposis (CRSwNP)
+- Eosinophilic esophagitis (EoE)
+- Prurigo nodularis
+
+II. GENERAL COVERAGE CRITERIA
+Coverage for Dupixent requires meeting ALL general criteria plus indication-specific criteria:
+
+1. Age Requirements:
+   a. Atopic dermatitis: ≥ 6 months of age
+   b. Asthma: ≥ 6 years of age (see clinical guidelines for phenotype criteria)
+   c. CRSwNP: ≥ 18 years of age
+   d. EoE: ≥ 12 years of age (weight ≥ 40 kg required)
+   e. Prurigo nodularis: ≥ 18 years of age
+
+2. Prescriber Requirement: Must be prescribed by or in consultation with:
+   a. Dermatologist (for AD, PN)
+   b. Allergist/Immunologist (for asthma, AD, EoE)
+   c. Pulmonologist (for asthma)
+   d. Otolaryngologist (for CRSwNP)
+   e. Gastroenterologist (for EoE)
+
+3. Documentation Requirements:
+   a. Baseline disease severity scores as per specialty society guidelines
+   b. Complete medication history including dates and doses
+   c. For pediatric patients: growth charts and weight documentation
+
+III. INDICATION-SPECIFIC CRITERIA
+
+A. ATOPIC DERMATITIS
+1. Disease severity documented by EASI score ≥ 16 OR IGA ≥ 3 (see clinical guidelines for scoring details)
+2. Body surface area involvement ≥ 10%
+3. Failed topical therapy as outlined in Section IV.A
+
+B. ASTHMA
+1. Confirmed eosinophilic phenotype (see clinical guidelines for specific eosinophil thresholds by age)
+2. ≥ 2 exacerbations in past 12 months requiring systemic corticosteroids
+3. Current therapy must include high-dose ICS/LABA (refer to GINA guidelines for dosing)
+
+C. CHRONIC RHINOSINUSITIS WITH NASAL POLYPOSIS
+1. Bilateral nasal polyps confirmed by endoscopy (NPS ≥ 5)
+2. Sino-Nasal Outcome Test (SNOT-22) score (threshold per clinical guidelines)
+3. Failed medical management per Section IV.C
+
+D. EOSINOPHILIC ESOPHAGITIS
+1. Histologic confirmation: peak eosinophil count per clinical guidelines
+2. Symptomatic disease despite PPI therapy
+3. For patients < 18 years: weight-based dosing per manufacturer guidelines
+
+E. PRURIGO NODULARIS
+1. ≥ 20 nodules present
+2. Pruritus NRS ≥ 7 (see clinical guidelines for assessment method)
+3. Failed therapies per Section IV.E
+
+IV. REQUIRED PRIOR THERAPIES
+[Note: Specific duration requirements and combinations per accompanying clinical guidelines]
+
+A. Atopic Dermatitis:
+   - High-potency topical corticosteroids
+   - Topical calcineurin inhibitors
+   - For moderate-severe cases: phototherapy or systemic immunosuppressant
+
+B. Asthma:
+   - Maximized inhaler therapy per GINA step 4-5
+   - Trial of additional controller per clinical guidelines
+
+C. CRSwNP:
+   - Intranasal corticosteroids (specific duration per guidelines)
+   - Systemic corticosteroids (number of courses per guidelines)
+   - Consideration of surgical intervention
+
+D. EoE:
+   - High-dose PPI therapy (dosing per weight/age in guidelines)
+   - Dietary elimination if applicable
+   - Topical corticosteroids
+
+E. Prurigo Nodularis:
+   - Super-potent topical corticosteroids
+   - At least ONE systemic therapy from clinical guidelines list
+
+V. DURATION OF APPROVAL
+Initial approval: 6 months (all indications)
+Renewal: 12 months if meeting continuation criteria
+
+VI. CONTINUATION CRITERIA
+See accompanying clinical practice guidelines for specific response criteria by indication.
+General requirement: No new safety concerns or contraindications
