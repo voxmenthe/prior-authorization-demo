@@ -21,6 +21,9 @@ from src.demo.presenter import VisualPresenter
 from src.demo.tracker import ProgressTracker
 
 
+# Configuration settings
+TREE_DISPLAY_MAX_DEPTH = 10  # Maximum depth for decision tree visualization
+
 # Initialize Rich console and Typer app
 console = Console()
 presenter = VisualPresenter(console)
@@ -95,7 +98,7 @@ def run(
             
             if result.success:
                 if show_trees:
-                    presenter.show_decision_tree(result.decision_tree, result.document_name)
+                    presenter.show_decision_tree(result.decision_tree, result.document_name, max_depth=TREE_DISPLAY_MAX_DEPTH)
                 presenter.show_step_result("Document Processing", True, result.processing_time)
             else:
                 presenter.show_step_result("Document Processing", False, result.processing_time, result.error)
@@ -148,7 +151,7 @@ def run(
                     if result.success:
                         presenter.show_step_result(f"{result.document_name}", True, result.processing_time)
                         if show_trees and not quick:
-                            presenter.show_decision_tree(result.decision_tree, result.document_name)
+                            presenter.show_decision_tree(result.decision_tree, result.document_name, max_depth=TREE_DISPLAY_MAX_DEPTH)
                     else:
                         presenter.show_step_result(f"{result.document_name}", False, result.processing_time, result.error)
                     

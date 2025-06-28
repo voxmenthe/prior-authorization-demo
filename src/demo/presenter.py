@@ -156,13 +156,14 @@ class VisualPresenter:
         self.console.print(f"[{color}]{result_text}[/{color}]")
     
     def show_decision_tree(self, tree_data: Dict[str, Any], 
-                          document_name: str) -> None:
+                          document_name: str, max_depth: int = 15) -> None:
         """
         Display decision tree in ASCII art format.
         
         Args:
             tree_data: Decision tree data structure
             document_name: Name of source document
+            max_depth: Maximum depth to display (default: 15)
         """
         # Extract medication name from document name
         medication = document_name.replace("_criteria.txt", "").replace(".txt", "").title()
@@ -185,7 +186,7 @@ class VisualPresenter:
                 start_node_id = tree_data.get("start_node")
                 if start_node_id and start_node_id in nodes:
                     # Build tree starting from start_node
-                    self._build_tree_from_dict(tree, nodes, start_node_id, visited=set())
+                    self._build_tree_from_dict(tree, nodes, start_node_id, visited=set(), max_depth=max_depth)
                 else:
                     # Convert dict to list and build
                     nodes_list = list(nodes.values())
@@ -214,9 +215,9 @@ class VisualPresenter:
         self.console.print(tree_panel)
     
     def _build_tree_from_dict(self, parent_tree: Tree, nodes: Dict[str, Any], 
-                              node_id: str, visited: set, depth: int = 0) -> None:
+                              node_id: str, visited: set, depth: int = 0, max_depth: int = 15) -> None:
         """Build tree recursively from dict format nodes."""
-        if node_id in visited or depth > 10:  # Prevent infinite loops
+        if node_id in visited or depth > max_depth:  # Prevent infinite loops
             return
         
         visited.add(node_id)
@@ -280,7 +281,7 @@ class VisualPresenter:
                         
                         # Recursively build the subtree (but not for outcomes)
                         if target_type != "outcome":
-                            self._build_tree_from_dict(sub_branch, nodes, target_id, visited, depth + 1)
+                            self._build_tree_from_dict(sub_branch, nodes, target_id, visited, depth + 1, max_depth)
             elif isinstance(connections, list):
                 # Format: [{"condition": "...", "target": "..."}]
                 for conn in connections:

@@ -40,6 +40,9 @@ from src.demo.enhanced_visualizer import (
 from src.utils.tree_traversal import SafeTreeTraverser, TraversalConfig, validate_tree_structure
 
 
+# Configuration settings
+TREE_DISPLAY_MAX_DEPTH = 25  # Maximum depth for decision tree visualization
+
 # Initialize Rich console and Typer app
 console = Console()
 app = typer.Typer(

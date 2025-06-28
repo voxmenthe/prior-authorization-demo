@@ -133,34 +133,62 @@ class DemoOrchestrator:
             # Save decision tree to file
             self._save_decision_tree(result)
             
+            # Add to session if one exists
+            if self.session:
+                self.session.document_results.append(result)
+                self.session.total_documents += 1
+                if result.success:
+                    self.session.successful_documents += 1
+            
             return result
             
         except FileNotFoundError as e:
             processing_time = time.time() - start_time
-            return DocumentResult(
+            result = DocumentResult(
                 document_name=document_name,
                 success=False,
                 processing_time=processing_time,
                 error=f"File not found: {str(e)}"
             )
             
+            # Add to session if one exists
+            if self.session:
+                self.session.document_results.append(result)
+                self.session.total_documents += 1
+            
+            return result
+            
         except (CriteriaParsingError, TreeStructureError, ValidationError, RefinementError) as e:
             processing_time = time.time() - start_time
-            return DocumentResult(
+            result = DocumentResult(
                 document_name=document_name,
                 success=False,
                 processing_time=processing_time,
                 error=f"Pipeline error: {str(e)}"
             )
             
+            # Add to session if one exists
+            if self.session:
+                self.session.document_results.append(result)
+                self.session.total_documents += 1
+            
+            return result
+            
         except Exception as e:
             processing_time = time.time() - start_time
-            return DocumentResult(
+            result = DocumentResult(
                 document_name=document_name,
                 success=False,
                 processing_time=processing_time,
                 error=f"Unexpected error: {str(e)}"
             )
+            
+            # Add to session if one exists
+            if self.session:
+                self.session.document_results.append(result)
+                self.session.total_documents += 1
+            
+            return result
 
     def process_multiple_documents(self, document_paths: List[str]) -> List[DocumentResult]:
         """
