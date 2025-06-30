@@ -34,6 +34,9 @@ class AppConfig:
     enable_caching: bool = True
     log_level: str = "INFO"
     
+    # Validation settings
+    validation_max_retries: int = 1  # Retries for malformed LLM responses in validation
+    
     # Multi-document processing features
     enable_multi_document: bool = False
     multi_doc_merge_strategy: str = "simple_append"  # Options: simple_append, reference_resolution, smart_merge
