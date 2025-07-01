@@ -33,6 +33,13 @@ class AppConfig:
     timeout_seconds: int = 10  # Shorter timeout to prevent hangs
     enable_caching: bool = True
     log_level: str = "INFO"
+    
+    # Validation settings
+    validation_max_retries: int = 1  # Retries for malformed LLM responses in validation
+    
+    # Multi-document processing features
+    enable_multi_document: bool = False
+    multi_doc_merge_strategy: str = "simple_append"  # Options: simple_append, reference_resolution, smart_merge
 
 
 class ConfigManager:
@@ -107,7 +114,9 @@ class ConfigManager:
             "max_retries": int(os.getenv("MAX_RETRIES", "3")),
             "timeout_seconds": int(os.getenv("TIMEOUT_SECONDS", "30")),
             "enable_caching": os.getenv("ENABLE_CACHING", "true").lower() == "true",
-            "log_level": os.getenv("LOG_LEVEL", "INFO").upper()
+            "log_level": os.getenv("LOG_LEVEL", "INFO").upper(),
+            "enable_multi_document": os.getenv("ENABLE_MULTI_DOCUMENT", "false").lower() == "true",
+            "multi_doc_merge_strategy": os.getenv("MULTI_DOC_MERGE_STRATEGY", "simple_append")
         }
         
         # Environment-specific overrides

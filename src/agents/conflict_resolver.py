@@ -3,6 +3,7 @@
 from typing import Dict, List, Any
 from src.core.exceptions import ConflictType
 from src.core.llm_client import LlmClient
+from src.core.schemas import ConflictResolution, NodeModification
 
 
 class ConflictResolver:
@@ -97,13 +98,13 @@ class ConflictResolver:
         return grouped
     
     def _resolve_contradictory_paths(self, tree: dict, conflicts: List[Dict]) -> Dict:
-        """Resolve contradictory path conflicts."""
+        """Resolve contradictory path conflicts using structured output."""
         resolved = []
         unresolved = []
         
         for conflict in conflicts:
             try:
-                # Use LLM to analyze and suggest resolution
+                # Use structured output for better resolution
                 prompt = f"""
                 Analyze this contradictory path conflict in a decision tree:
                 
@@ -116,17 +117,33 @@ class ConflictResolver:
                 2. Adding additional decision nodes if needed
                 3. Clarifying the logic
                 
-                Return specific modifications to make.
+                Provide specific modifications to nodes, including:
+                - Which nodes need their conditions updated
+                - What the new conditions should be
+                - Any new nodes that need to be added
+                - Connections that need to be removed or added
+                
+                Focus on making conditions clear and mutually exclusive.
                 """
                 
-                resolution = self.llm.generate_text(prompt)
+                # Use structured JSON generation
+                resolution = self.llm.generate_structured_json(
+                    prompt=prompt,
+                    response_schema=ConflictResolution
+                )
                 
-                # Apply the resolution (simplified for now)
+                # Apply the resolution modifications
+                modified_tree = self._apply_modifications(tree, resolution)
+                
                 resolved.append({
                     'conflict': conflict,
-                    'resolution': resolution,
-                    'action': 'Modified conditions to be mutually exclusive'
+                    'resolution': resolution.model_dump(),
+                    'action': resolution.description,
+                    'confidence': resolution.confidence_score
                 })
+                
+                # Update tree for next iteration
+                tree = modified_tree
                 
             except Exception as e:
                 if self.verbose:
@@ -138,6 +155,49 @@ class ConflictResolver:
             'resolved': resolved,
             'unresolved': unresolved
         }
+    
+    def _apply_modifications(self, tree: dict, resolution: ConflictResolution) -> dict:
+        """Apply the modifications from a conflict resolution to the tree."""
+        modified_tree = tree.copy()
+        nodes = modified_tree.get('nodes', {})
+        
+        # Apply node modifications
+        for mod in resolution.modified_nodes:
+            if mod.node_id in nodes:
+                node = nodes[mod.node_id]
+                
+                if mod.modification_type == 'update_condition':
+                    node['condition'] = mod.new_value
+                elif mod.modification_type == 'update_text':
+                    node['question'] = mod.new_value
+                elif mod.modification_type == 'add_connection':
+                    if 'connections' not in node:
+                        node['connections'] = {}
+                    # Parse connection format: "condition:target_node"
+                    if ':' in mod.new_value:
+                        condition, target = mod.new_value.split(':', 1)
+                        node['connections'][condition] = target
+                elif mod.modification_type == 'remove_connection':
+                    if 'connections' in node and mod.old_value in node['connections']:
+                        del node['connections'][mod.old_value]
+        
+        # Add new nodes if any
+        if resolution.new_nodes:
+            for new_node in resolution.new_nodes:
+                node_dict = new_node.model_dump()
+                nodes[node_dict['id']] = node_dict
+        
+        # Remove connections if specified
+        if resolution.removed_connections:
+            for conn_spec in resolution.removed_connections:
+                # Format: "from_node:condition"
+                if ':' in conn_spec:
+                    from_node, condition = conn_spec.split(':', 1)
+                    if from_node in nodes and 'connections' in nodes[from_node]:
+                        if condition in nodes[from_node]['connections']:
+                            del nodes[from_node]['connections'][condition]
+        
+        return modified_tree
     
     def _resolve_circular_dependencies(self, tree: dict, conflicts: List[Dict]) -> Dict:
         """Resolve circular dependency conflicts."""
